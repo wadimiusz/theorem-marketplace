@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from flask import Flask, render_template
@@ -31,4 +32,8 @@ def bounty_detail(bounty_id):
 
 
 if __name__ == "__main__":
+    db_password = os.environ["DATABASE_PASSWORD"]
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        f"postgresql://theorem_user:{db_password}@localhost/theorem_marketplace"
+    )
     app.run(debug=True, host="0.0.0.0", port=5000)
