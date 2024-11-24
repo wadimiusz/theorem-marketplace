@@ -9,13 +9,38 @@ header, nav, footer {
     padding: 10px;
 }
 
+/* Navigation bar styles */
 nav ul {
     list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
 }
 
+/* Navigation links */
 nav li {
-    display: inline;
-    margin-right: 10px;
+    float: left;
+}
+
+nav li a, nav li button {
+    display: block;
+    color: #000;
+    text-align: center;
+    padding: 8px 16px;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Right-aligned item */
+nav li:last-child {
+    float: right;
+}
+
+nav li a:hover, nav li button:hover {
+    background-color: #ddd;
+    color: black;
 }
 
 main {
