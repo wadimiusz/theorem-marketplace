@@ -6,6 +6,10 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 db = SQLAlchemy(app)
+db_password = os.environ["DATABASE_PASSWORD"]
+app.config["SQLALCHEMY_DATABASE_URI"] = (
+    f"postgresql://theorem_user:{db_password}@localhost/theorem_marketplace"
+)
 
 
 @app.context_processor
@@ -34,8 +38,4 @@ def bounty_detail(bounty_id):
 
 
 if __name__ == "__main__":
-    db_password = os.environ["DATABASE_PASSWORD"]
-    app.config["SQLALCHEMY_DATABASE_URI"] = (
-        f"postgresql://theorem_user:{db_password}@localhost/theorem_marketplace"
-    )
     app.run(debug=True, host="0.0.0.0", port=5000)
