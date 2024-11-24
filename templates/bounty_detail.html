@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Theorem Details</h2>
+<h3>Sample Theorem 1</h3>
+<p><strong>Bounty:</strong> 1.0 ETH</p>
+<p><strong>Theorem Statement:</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero.</p>
+
+<h3>Submit Your Proof</h3>
+<form method="post">
+    <label for="proof">Your Proof:</label><br>
+    <textarea id="proof" name="proof" rows="10" cols="60" placeholder="Enter your proof here..."></textarea><br><br>
+
+    <button type="submit">Submit Proof</button>
+</form>
+{% endblock %}

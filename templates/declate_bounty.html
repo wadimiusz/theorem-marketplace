@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Declare a New Bounty</h2>
+<form method="post">
+    <label for="theorem">Theorem Statement:</label><br>
+    <textarea id="theorem" name="theorem" rows="5" cols="60" placeholder="Enter the theorem statement here..."></textarea><br><br>
+
+    <label for="bounty_amount">Bounty Amount (ETH):</label><br>
+    <input type="number" id="bounty_amount" name="bounty_amount" step="0.0001" placeholder="e.g., 0.5"><br><br>
+
+    <button type="submit">Declare Bounty</button>
+</form>
+{% endblock %}
