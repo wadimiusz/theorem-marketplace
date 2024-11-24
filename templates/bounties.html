@@ -3,16 +3,12 @@
 {% block content %}
 <h2>All Open Bounties</h2>
 <ul>
-    <!-- Placeholder for bounties -->
+    {% for bounty in bounties %}
     <li>
-        <a href="/bounties/1">Sample Theorem 1</a> - Bounty: 1.0 ETH
+        <a href="{{ url_for('bounty_detail', bounty_id=bounty.id) }}">{{ bounty.theorem[:50] }}...</a> - Bounty: {{ bounty.bounty_amount }} ETH
     </li>
-    <li>
-        <a href="/bounties/2">Sample Theorem 2</a> - Bounty: 0.5 ETH
-    </li>
-    <li>
-        <a href="/bounties/3">Sample Theorem 3</a> - Bounty: 2.0 ETH
-    </li>
-    <!-- ... -->
+    {% else %}
+    <li>No open bounties at the moment.</li>
+    {% endfor %}
 </ul>
 {% endblock %}
