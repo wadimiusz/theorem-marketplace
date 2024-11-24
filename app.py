@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 db_password = os.environ["DATABASE_PASSWORD"]
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"postgresql://theorem_user:{db_password}@localhost/theorem_marketplace"
+    f"postgresql://theorem_user:{db_password}@/theorem_marketplace"
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
