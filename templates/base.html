@@ -4,18 +4,23 @@
     <meta charset="UTF-8">
     <title>Theorem Marketplace</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 </head>
 <body>
-    <header>
-        <h1>Theorem Marketplace</h1>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/declare_bounty">Declare a Bounty</a></li>
-                <li><a href="/bounties">View Bounties</a></li>
-            </ul>
-        </nav>
-    </header>
+<header>
+    <h1>Theorem Marketplace</h1>
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/declare_bounty">Declare a Bounty</a></li>
+            <li><a href="/bounties">View Bounties</a></li>
+            <!-- Add the Connect Wallet button -->
+            <li style="float:right;">
+                <button id="connectWalletButton">Connect Wallet</button>
+            </li>
+        </ul>
+    </nav>
+</header>
 
     <main>
         {% block content %}

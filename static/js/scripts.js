@@ -1,2 +1,38 @@
-// Placeholder for future JavaScript code
-console.log("Scripts loaded.");
+window.addEventListener('DOMContentLoaded', () => {
+    const connectWalletButton = document.getElementById('connectWalletButton');
+
+    // Check if MetaMask is installed
+    if (typeof window.ethereum !== 'undefined') {
+        console.log('MetaMask is installed!');
+
+        // Function to handle wallet connection
+        async function connectWallet() {
+            try {
+                // Request account access if needed
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const account = accounts[0];
+                console.log('Connected account:', account);
+
+                // Update the button text or display the account
+                connectWalletButton.textContent = 'Connected: ' + account.substring(0, 6) + '...' + account.slice(-4);
+
+                // Optionally, store the account information for later use
+                // e.g., window.userAccount = account;
+
+                // Disable the button after connection
+                connectWalletButton.disabled = true;
+            } catch (error) {
+                console.error('User rejected the connection request');
+            }
+        }
+
+        // Attach the event handler
+        connectWalletButton.addEventListener('click', connectWallet);
+    } else {
+        // MetaMask is not installed
+        connectWalletButton.textContent = 'Install MetaMask';
+        connectWalletButton.onclick = () => {
+            window.open('https://metamask.io/download.html', '_blank');
+        };
+    }
+});
