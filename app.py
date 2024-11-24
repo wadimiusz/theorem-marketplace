@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 
 from flask import Flask, render_template
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -9,7 +10,9 @@ db_password = os.environ["DATABASE_PASSWORD"]
 app.config["SQLALCHEMY_DATABASE_URI"] = (
     f"postgresql://theorem_user:{db_password}@localhost/theorem_marketplace"
 )
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 @app.context_processor
