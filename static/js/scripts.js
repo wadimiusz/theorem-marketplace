@@ -36,3 +36,24 @@ window.addEventListener('DOMContentLoaded', () => {
         };
     }
 });
+
+// Listen for account changes
+window.ethereum.on('accountsChanged', function (accounts) {
+    if (accounts.length > 0) {
+        const account = accounts[0];
+        window.userAccount = account;
+        connectWalletButton.textContent = 'Connected: ' + account.substring(0, 6) + '...' + account.slice(-4);
+        connectWalletButton.disabled = true;
+    } else {
+        // No accounts available (user disconnected)
+        connectWalletButton.textContent = 'Connect Wallet';
+        connectWalletButton.disabled = false;
+    }
+});
+
+// Listen for network changes (optional)
+window.ethereum.on('chainChanged', (chainId) => {
+    // Reload the page to avoid any stale data
+    window.location.reload();
+});
+
