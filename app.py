@@ -104,7 +104,7 @@ def add_bounty():
 
     # Verify the transaction
     try:
-        tx = w3.eth.getTransaction(transaction_hash)
+        tx = w3.eth.get_transaction(transaction_hash)
     except Exception as e:
         print("Error fetching transaction:", e)
         return jsonify({"error": "Invalid transaction hash"}), 400
