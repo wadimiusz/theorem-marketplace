@@ -1,4 +1,4 @@
-const contractABI = [
+const theoremMarketplaceABI = [
 	{
 		"anonymous": false,
 		"inputs": [
@@ -396,5 +396,5 @@ const provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
 
 // Instantiate the contract
-const contract = new ethers.Contract(contractAddress, contractABI, signer);
+const contract = new ethers.Contract(contractAddress, theoremMarketplaceABI, signer);
 

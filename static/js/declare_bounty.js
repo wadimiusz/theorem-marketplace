@@ -36,7 +36,7 @@ declareBountyForm.addEventListener('submit', async (event) => {
         const signer = provider.getSigner();
 
         // Instantiate the contract
-        const contract = new ethers.Contract(contractAddress, contractABI, signer);
+        const contract = new ethers.Contract(contractAddress, theoremMarketplaceABI, signer);
 
         // Send the transaction
         const tx = await contract.declareBounty(theorem, {
