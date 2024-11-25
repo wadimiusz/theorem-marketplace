@@ -1,9 +1,10 @@
 import os
 from datetime import datetime
 
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, jsonify, redirect, render_template, request, url_for
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from web3 import Web3
 
 app = Flask(__name__)
 db_password = os.environ["DATABASE_PASSWORD"]
@@ -14,11 +15,15 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+metamask_developer_key = os.environ["METAMASK_DEVELOPER_KEY"]
+w3 = Web3(Web3.HTTPProvider(f"https://sepolia.infura.io/v3/{metamask_developer_key}"))
+
 
 class Bounty(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     theorem = db.Column(db.Text, nullable=False)
     bounty_amount = db.Column(db.Float, nullable=False)
+    user_address = db.Column(db.String(42), nullable=False)
     status = db.Column(db.String(20), nullable=False, default="open")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -83,6 +88,48 @@ def bounty_detail(bounty_id):
     # Retrieve the specific bounty or return 404
     bounty = Bounty.query.get_or_404(bounty_id)
     return render_template("bounty_detail.html", bounty=bounty)
+
+
+@app.route("/api/add_bounty", methods=["POST"])
+def add_bounty():
+    data = request.get_json()
+    theorem = data.get("theorem")
+    bounty_amount = data.get("bounty_amount")
+    transaction_hash = data.get("transaction_hash")
+    user_address = data.get("user_address")
+
+    # Validate input data
+    if not all([theorem, bounty_amount, transaction_hash, user_address]):
+        return jsonify({"error": "Missing data"}), 400
+
+    # Verify the transaction
+    try:
+        tx = w3.eth.getTransaction(transaction_hash)
+    except Exception as e:
+        print("Error fetching transaction:", e)
+        return jsonify({"error": "Invalid transaction hash"}), 400
+
+    # Check if the transaction corresponds to the declareBounty function call
+    # and that it was sent by the user_address
+    if tx["from"].lower() != user_address.lower():
+        return jsonify({"error": "Transaction sender does not match user address"}), 400
+
+    # Additional verification: Check if the transaction was to the correct contract and method
+    # For more advanced check, decode input data to verify method and parameters
+
+    # TODO: Implement input data decoding and method verification if necessary
+
+    # Create a new Bounty in the database
+    new_bounty = Bounty(
+        theorem=theorem,
+        bounty_amount=bounty_amount,
+        user_address=user_address,
+        status="open",
+    )
+    db.session.add(new_bounty)
+    db.session.commit()
+
+    return jsonify({"message": "Bounty added successfully"}), 200
 
 
 if __name__ == "__main__":

@@ -2,10 +2,8 @@
 
 {% block content %}
 <h2>Declare a New Bounty</h2>
-{% if error %}
-  <p style="color: red;">{{ error }}</p>
-{% endif %}
-<form method="post" action="{{ url_for('declare_bounty') }}">
+<p id="statusMessage"></p>
+<form id="declareBountyForm">
     <label for="theorem">Theorem Statement:</label><br>
     <textarea id="theorem" name="theorem" rows="5" cols="60" placeholder="Enter the theorem statement here..." required></textarea><br><br>
 
@@ -14,4 +12,6 @@
 
     <button type="submit">Declare Bounty</button>
 </form>
+
+<script src="{{ url_for('static', filename='js/declare_bounty.js') }}"></script>
 {% endblock %}
