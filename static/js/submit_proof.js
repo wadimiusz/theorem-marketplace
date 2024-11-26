@@ -41,6 +41,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
             // Send the transaction
             const tx = await contract.requestBounty(theorem, proof);
+            console.log("Theorem:", theorem);
+            console.log("Proof:", proof);
 
             statusMessage.textContent = 'Transaction submitted. Waiting for confirmation...';
 
