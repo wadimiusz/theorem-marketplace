@@ -1,22 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Theorem Details</h2>
-<h3>{{ bounty.theorem }}</h3>
-<p><strong>Bounty:</strong> {{ bounty.bounty_amount }} ETH</p>
-<p><strong>Status:</strong> {{ bounty.status }}</p>
-
-<!-- Proof Submission Form -->
-<h3>Submit Your Proof</h3>
+<h2>Declare a New Bounty</h2>
 <p id="statusMessage"></p>
-<form id="submitProofForm">
-    <label for="proof">Your Proof:</label><br>
-    <textarea id="proof" name="proof" rows="10" cols="60" placeholder="Enter your proof here..." required></textarea><br><br>
+<form id="declareBountyForm">
+    <label for="theorem">Theorem Statement:</label><br>
+    <textarea id="theorem" name="theorem" rows="5" cols="60" placeholder="Enter the theorem statement here..." required></textarea><br><br>
 
-    <button type="submit">Submit Proof</button>
+    <label for="bounty_amount">Bounty Amount (ETH):</label><br>
+    <input type="number" id="bounty_amount" name="bounty_amount" step="0.0001" placeholder="e.g., 0.5" required><br><br>
+
+    <button type="submit">Declare Bounty</button>
 </form>
 
-<script src="{{ url_for('static', filename='js/submit_proof.js') }}"></script>
-
-<p><a href="{{ url_for('bounties') }}">Back to Bounties</a></p>
+<script src="{{ url_for('static', filename='js/declare_bounty.js') }}"></script>
 {% endblock %}
