@@ -16,6 +16,14 @@
     <button type="submit">Submit Proof</button>
 </form>
 
+<!-- Include the theorem variable in an inline script -->
+<script>
+    // Safely serialize the theorem variable to JSON
+    const theorem = {{ bounty.theorem|tojson }};
+    console.log("Theorem:", theorem);
+</script>
+
+<!-- Include your external JavaScript file after defining theorem -->
 <script src="{{ url_for('static', filename='js/submit_proof.js') }}"></script>
 
 <p><a href="{{ url_for('bounties') }}">Back to Bounties</a></p>

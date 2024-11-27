@@ -12,9 +12,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     const submitProofForm = document.getElementById('submitProofForm');
     const statusMessage = document.getElementById('statusMessage');
 
-    // Extract the theorem from the page (we'll need to pass it to the contract)
-    const theorem = "{{ bounty.theorem|tojson }}";  // Pass the theorem from Flask to JavaScript
-
     // Add event listener to the form submission
     submitProofForm.addEventListener('submit', async (event) => {
         event.preventDefault(); // Prevent the default form submission
