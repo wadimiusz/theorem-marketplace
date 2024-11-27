@@ -40,10 +40,10 @@ window.addEventListener('DOMContentLoaded', async () => {
             const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
             // Send the transaction
-            const tx = await contract.requestBounty(theorem, proof);
             console.log("Theorem:", theorem);
             console.log("Proof:", proof);
-
+            const tx = await contract.requestBounty(theorem, proof);
+            
             statusMessage.textContent = 'Transaction submitted. Waiting for confirmation...';
 
             // Wait for transaction to be mined
