@@ -26,41 +26,62 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
 
         try {
-            // Request account access if needed
-            await window.ethereum.request({ method: 'eth_requestAccounts' });
+    // Request account access if needed
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-            // Instantiate provider and signer
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const signer = provider.getSigner();
+    // Instantiate provider and signer
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
 
-            // Instantiate the contract
-            const contract = new ethers.Contract(contractAddress, contractABI, signer);
+    // Instantiate the contract
+    const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
-            // Send the transaction
-            console.log("Theorem:", theorem);
-            console.log("Proof:", proof);
-            const tx = await contract.requestBounty(theorem, proof);
-            
-            statusMessage.textContent = 'Transaction submitted. Waiting for confirmation...';
+    // Send the transaction
+    const tx = await contract.requestBounty(theorem, proof);
 
-            // Wait for transaction to be mined
-            const receipt = await tx.wait();
+    statusMessage.textContent = 'Transaction submitted. Waiting for confirmation...';
 
-            if (receipt.status === 1) {
-                statusMessage.textContent = 'Proof submitted successfully!';
+    // Wait for transaction to be mined
+    const receipt = await tx.wait();
+
+    // Check if the transaction was successful
+    if (receipt.status === 1) {
+        statusMessage.textContent = 'Proof submitted successfully!';
+        // Optionally, clear the form or perform other actions
+        submitProofForm.reset();
+    } else {
+        statusMessage.textContent = 'Transaction failed.';
+    }
+} catch (error) {
+    console.error('Error:', error);
+
+    if (error.code === ethers.errors.TRANSACTION_REPLACED) {
+        if (error.cancelled) {
+            statusMessage.textContent = 'Transaction was cancelled.';
+        } else {
+            // Transaction was replaced by a new one
+            // You can check if the replacement transaction was successful
+            const replacementReceipt = error.receipt;
+
+            if (replacementReceipt && replacementReceipt.status === 1) {
+                statusMessage.textContent = 'Proof submitted successfully (transaction replaced)!';
+                console.log('Replacement transaction hash:', replacementReceipt.transactionHash);
                 // Optionally, clear the form or perform other actions
                 submitProofForm.reset();
+
+                // If needed, store the replacement transaction hash
+                const replacementTxHash = replacementReceipt.transactionHash;
+                // ... use replacementTxHash as needed ...
             } else {
-                statusMessage.textContent = 'Transaction failed.';
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            if (error.code === 4001) {
-                // User rejected transaction
-                statusMessage.textContent = 'Transaction rejected by user.';
-            } else {
-                statusMessage.textContent = 'An error occurred. See console for details.';
+                statusMessage.textContent = 'Replacement transaction failed.';
             }
         }
+    } else if (error.code === 4001) {
+        // User rejected transaction
+        statusMessage.textContent = 'Transaction rejected by user.';
+    } else {
+        statusMessage.textContent = 'An error occurred. See console for details.';
+    }
+}
     });
 });
