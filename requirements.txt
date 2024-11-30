@@ -3,3 +3,4 @@ Flask-SQLAlchemy
 psycopg2-binary
 Flask-Migrate
 web3
+gunicorn
