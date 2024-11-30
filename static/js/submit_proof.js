@@ -38,6 +38,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     // Send the transaction
     const tx = await contract.requestBounty(theorem, proof);
+    const txHash = tx.hash;
 
     const etherscanBaseUrl = 'https://sepolia.etherscan.io/tx/';
     const etherscanLink = `${etherscanBaseUrl}${txHash}`;
