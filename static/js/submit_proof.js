@@ -39,7 +39,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Send the transaction
     const tx = await contract.requestBounty(theorem, proof);
 
-    statusMessage.textContent = 'Transaction submitted. Waiting for confirmation...';
+    const etherscanBaseUrl = 'https://sepolia.etherscan.io/tx/';
+    const etherscanLink = `${etherscanBaseUrl}${txHash}`;
+    statusMessage.innerHTML = `Transaction submitted. <a href="${etherscanLink}" target="_blank">View on Etherscan</a>. Waiting for confirmation...`;
 
     // Wait for transaction to be mined
     const receipt = await tx.wait();
@@ -62,9 +64,11 @@ window.addEventListener('DOMContentLoaded', async () => {
             // Transaction was replaced by a new one
             // You can check if the replacement transaction was successful
             const replacementReceipt = error.receipt;
+            const replacementTxHash = error.replacement.hash;
+            const etherscanReplacementLink = `${etherscanBaseUrl}${replacementTxHash}`;
 
             if (replacementReceipt && replacementReceipt.status === 1) {
-                statusMessage.textContent = 'Proof submitted successfully (transaction replaced)!';
+                statusMessage.innerHTML = `Proof submitted successfully! (Transaction replaced) <a href="${etherscanReplacementLink}" target="_blank">View on Etherscan</a>`;
                 console.log('Replacement transaction hash:', replacementReceipt.transactionHash);
                 // Optionally, clear the form or perform other actions
                 submitProofForm.reset();
