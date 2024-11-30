@@ -42,8 +42,11 @@ declareBountyForm.addEventListener('submit', async (event) => {
         const tx = await contract.declareBounty(theorem, {
             value: bountyAmountWei
         });
+        const txHash = tx.hash;
+        const etherscanBaseUrl = 'https://sepolia.etherscan.io/tx/';
+        const etherscanLink = `${etherscanBaseUrl}${txHash}`;
 
-        statusMessage.textContent = 'Transaction submitted. Waiting for confirmation...';
+        statusMessage.innerHTML = `Transaction submitted. <a href="${etherscanLink}" target="_blank">View on Etherscan</a>. Waiting for confirmation...`;
 
         // Wait for transaction to be mined
         const receipt = await tx.wait();

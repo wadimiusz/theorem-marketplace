@@ -49,7 +49,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     // Check if the transaction was successful
     if (receipt.status === 1) {
-        statusMessage.textContent = 'Proof submitted successfully!';
+        statusMessage.innerHTML = `Proof submitted successfully! <a href="${etherscanLink}" target="_blank">View on Etherscan</a>.`;
         // Optionally, clear the form or perform other actions
         submitProofForm.reset();
     } else {
