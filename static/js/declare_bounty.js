@@ -6,96 +6,148 @@ window.addEventListener('DOMContentLoaded', async () => {
     } else {
         alert('Please install MetaMask to use this feature.');
         return;
-}
-
-// Get references to form elements
-const declareBountyForm = document.getElementById('declareBountyForm');
-const statusMessage = document.getElementById('statusMessage');
-
-// Add event listener to the form submission
-declareBountyForm.addEventListener('submit', async (event) => {
-    event.preventDefault(); // Prevent the default form submission
-
-    // Get form values
-    const theorem = document.getElementById('theorem').value;
-    const bountyAmount = document.getElementById('bounty_amount').value;
-
-    // Validate inputs
-    if (!theorem || !bountyAmount) {
-        statusMessage.textContent = 'Please fill out all fields.';
-        return;
     }
 
-    // Convert bounty amount to Wei (smallest unit of Ether)
-    const bountyAmountWei = ethers.utils.parseEther(bountyAmount);
+    // Get references to form elements
+    const declareBountyForm = document.getElementById('declareBountyForm');
+    const statusMessage = document.getElementById('statusMessage');
 
-    try {
-        // Request account access if needed
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
+    // Add event listener to the form submission
+    declareBountyForm.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Prevent the default form submission
 
-        // Instantiate the contract
-        const contract = new ethers.Contract(contractAddress, contractABI, signer);
+        // Get form values
+        const theorem = document.getElementById('theorem').value;
+        const bountyAmount = document.getElementById('bounty_amount').value;
 
-        // Send the transaction
-        const tx = await contract.declareBounty(theorem, {
-            value: bountyAmountWei
-        });
-        const txHash = tx.hash;
-        const etherscanBaseUrl = 'https://sepolia.etherscan.io/tx/';
-        const etherscanLink = `${etherscanBaseUrl}${txHash}`;
-
-        statusMessage.innerHTML = `Transaction submitted. <a href="${etherscanLink}" target="_blank">View on Etherscan</a>. Waiting for confirmation...`;
-
-        // Wait for transaction to be mined
-        const receipt = await tx.wait();
-
-if (receipt.status === 1) {
-statusMessage.innerHTML = `Bounty declared successfully! <a href="${etherscanLink}" target="_blank">View on Etherscan</a>.`;
-
-// Prepare data to send to the backend
-const data = {
-    theorem: theorem,
-    bounty_amount: bountyAmount,
-    transaction_hash: receipt.transactionHash,
-    user_address: await signer.getAddress()
-};
-
-// Send the data to the backend
-fetch('/api/add_bounty', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-})
-.then(response => {
-    if (response.ok) {
-        console.log('Bounty added to the database.');
-        // Optionally, redirect to the bounties list
-        // window.location.href = '/bounties';
-    } else {
-        statusMessage.textContent = 'Failed to add bounty to the database.';
-        console.error('Server responded with status:', response.status);
-    }
-})
-.catch(error => {
-    statusMessage.textContent = 'An error occurred while updating the database.';
-    console.error('Error:', error);
-});
-} else {
-statusMessage.textContent = 'Transaction failed.';
-}
-
-    } catch (error) {
-        console.error('Error:', error);
-        if (error.code === 4001) {
-            // User rejected transaction
-            statusMessage.textContent = 'Transaction rejected by user.';
-        } else {
-            statusMessage.textContent = 'An error occurred. See console for details.';
+        // Validate inputs
+        if (!theorem || !bountyAmount) {
+            statusMessage.textContent = 'Please fill out all fields.';
+            return;
         }
+
+        // Convert bounty amount to Wei (smallest unit of Ether)
+        const bountyAmountWei = ethers.utils.parseEther(bountyAmount);
+
+        try {
+            // Request account access if needed
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+
+            // Instantiate the contract
+            const contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+            // Disable the submit button to prevent multiple submissions
+            declareBountyForm.querySelector('button[type="submit"]').disabled = true;
+
+            // Send the transaction
+            const tx = await contract.declareBounty(theorem, {
+                value: bountyAmountWei
+            });
+            let txHash = tx.hash;
+            const etherscanBaseUrl = 'https://sepolia.etherscan.io/tx/';
+            let etherscanLink = `${etherscanBaseUrl}${txHash}`;
+
+            // Update status message with the link
+            statusMessage.innerHTML = `Transaction submitted. <a href="${etherscanLink}" target="_blank">View on Etherscan</a>. Waiting for confirmation...`;
+
+            // Wait for transaction to be mined
+            let receipt;
+
+            try {
+                receipt = await tx.wait();
+
+                if (receipt.status === 1) {
+                    statusMessage.innerHTML = `Bounty declared successfully! <a href="${etherscanLink}" target="_blank">View on Etherscan</a>.`;
+
+                    // Prepare data to send to the backend
+                    const data = {
+                        theorem: theorem,
+                        bounty_amount: bountyAmount,
+                        transaction_hash: receipt.transactionHash,
+                        user_address: await signer.getAddress()
+                    };
+
+                    // Send the data to the backend
+                    sendBountyToBackend(data);
+                } else {
+                    statusMessage.textContent = 'Transaction failed.';
+                }
+            } catch (error) {
+                if (error.code === ethers.errors.TRANSACTION_REPLACED) {
+                    if (error.cancelled) {
+                        statusMessage.textContent = 'Transaction was cancelled.';
+                    } else {
+                        // Transaction was replaced
+                        const replacementTx = error.replacement;
+                        txHash = replacementTx.hash;
+                        etherscanLink = `${etherscanBaseUrl}${txHash}`;
+
+                        // Update status message
+                        statusMessage.innerHTML = `Transaction replaced. <a href="${etherscanLink}" target="_blank">View on Etherscan</a>. Waiting for confirmation...`;
+
+                        // Get the receipt of the replacement transaction
+                        const replacementReceipt = error.receipt;
+                        if (replacementReceipt && replacementReceipt.status === 1) {
+                            statusMessage.innerHTML = `Bounty declared successfully! (Transaction replaced) <a href="${etherscanLink}" target="_blank">View on Etherscan</a>.`;
+
+                            // Prepare data to send to the backend
+                            const data = {
+                                theorem: theorem,
+                                bounty_amount: bountyAmount,
+                                transaction_hash: replacementReceipt.transactionHash,
+                                user_address: await signer.getAddress()
+                            };
+
+                            // Send the data to the backend
+                            sendBountyToBackend(data);
+                        } else {
+                            statusMessage.textContent = 'Replacement transaction failed.';
+                        }
+                    }
+                } else {
+                    throw error; // Rethrow error to be caught by the outer catch block
+                }
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            if (error.code === 4001) {
+                // User rejected transaction
+                statusMessage.textContent = 'Transaction rejected by user.';
+            } else {
+                statusMessage.textContent = 'An error occurred. See console for details.';
+            }
+        } finally {
+            // Re-enable the submit button
+            declareBountyForm.querySelector('button[type="submit"]').disabled = false;
+        }
+    });
+
+    // Function to send bounty data to the backend
+    function sendBountyToBackend(data) {
+        fetch('/api/add_bounty', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Bounty added to the database.');
+                // Optionally, redirect to the bounties list
+                // window.location.href = '/bounties';
+            } else {
+                statusMessage.textContent = 'Failed to add bounty to the database.';
+                console.error('Server responded with status:', response.status);
+            }
+        })
+        .catch(error => {
+            statusMessage.textContent = 'An error occurred while updating the database.';
+            console.error('Error:', error);
+        });
     }
-});
+
 });
