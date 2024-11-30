@@ -52,7 +52,7 @@ declareBountyForm.addEventListener('submit', async (event) => {
         const receipt = await tx.wait();
 
 if (receipt.status === 1) {
-statusMessage.textContent = 'Bounty declared successfully!';
+statusMessage.innerHTML = `Bounty declared successfully! <a href="${etherscanLink}" target="_blank">View on Etherscan</a>.`;
 
 // Prepare data to send to the backend
 const data = {
