@@ -41,7 +41,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         const syntaxCheckResult = await syntaxCheckResponse.json();
 
         if (!syntaxCheckResult.success) {
-            statusMessage.textContent = `Syntax Error: ${syntaxCheckResult.error}`;
+            statusMessage.textContent = `Syntax Error: ${syntaxCheckResult.message}`;
             submitProofForm.querySelector('button[type="submit"]').disabled = false;
             return;
         }
