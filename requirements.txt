@@ -4,4 +4,4 @@ psycopg2-binary
 Flask-Migrate
 web3
 requests
-uvicorn
+gunicorn
