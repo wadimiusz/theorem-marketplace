@@ -13,7 +13,7 @@ from web3 import Web3
 app = Flask(__name__)
 db_password = os.environ["DATABASE_PASSWORD"]
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"postgresql://theorem_user:{db_password}@localhost:5433/theorem_marketplace"
+    f"postgresql://theorem_user:{db_password}@theorem_postgres:5433/theorem_marketplace"
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
