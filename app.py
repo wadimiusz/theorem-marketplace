@@ -1,3 +1,4 @@
+import json
 import os
 import traceback
 from datetime import datetime
@@ -6,6 +7,7 @@ import requests
 from flask import Flask, jsonify, redirect, render_template, request, url_for
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects.postgresql.psycopg2 import logger
 from web3 import Web3
 
 app = Flask(__name__)
@@ -20,12 +22,16 @@ migrate = Migrate(app, db)
 metamask_developer_key = os.environ["METAMASK_DEVELOPER_KEY"]
 w3 = Web3(Web3.HTTPProvider(f"https://sepolia.infura.io/v3/{metamask_developer_key}"))
 
+with open("ABI.json") as f:
+    contract_ABI = json.load(f)
+
+contract = w3.eth.contract(address=os.environ["CONTRACT_ADDRESS"], abi=contract_ABI)
+
 
 class Bounty(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    theorem = db.Column(db.Text, nullable=False)
+    theorem = db.Column(db.Text, unique=True, nullable=False)  # Make theorem unique
     bounty_amount = db.Column(db.Float, nullable=False)
-    user_address = db.Column(db.String(42), nullable=False)
     status = db.Column(db.String(20), nullable=False, default="open")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -96,42 +102,56 @@ def bounty_detail(bounty_id):
 def add_bounty():
     data = request.get_json()
     theorem = data.get("theorem")
-    bounty_amount = data.get("bounty_amount")
     transaction_hash = data.get("transaction_hash")
-    user_address = data.get("user_address")
 
     # Validate input data
-    if not all([theorem, bounty_amount, transaction_hash, user_address]):
+    if not all([theorem, transaction_hash]):
         return jsonify({"error": "Missing data"}), 400
 
     # Verify the transaction
     try:
-        tx = w3.eth.get_transaction(transaction_hash)
+        w3.eth.get_transaction(transaction_hash)
     except Exception as e:
         print("Error fetching transaction:", e)
         return jsonify({"error": "Invalid transaction hash"}), 400
 
-    # Check if the transaction corresponds to the declareBounty function call
-    # and that it was sent by the user_address
-    if tx["from"].lower() != user_address.lower():
-        return jsonify({"error": "Transaction sender does not match user address"}), 400
+    # Ensure the transaction was successful
+    receipt = w3.eth.get_transaction_receipt(transaction_hash)
+    if receipt.status != 1:
+        return jsonify({"error": "Transaction failed"}), 400
 
-    # Additional verification: Check if the transaction was to the correct contract and method
-    # For more advanced check, decode input data to verify method and parameters
+    # Call the smart contract to get the latest bounty amount
+    try:
+        # Query the current bounty amount from the smart contract
+        bounty_amount_wei = contract.functions.theoremBounties(theorem).call()
+        bounty_amount_ether = w3.from_wei(
+            bounty_amount_wei, "ether"
+        )  # Convert to Ether
+    except Exception:
+        logger.error(traceback.format_exc())
+        return jsonify({"message": "Failed to sync with the smart contract"}), 500
 
-    # TODO: Implement input data decoding and method verification if necessary
+    # Sync with the database
+    try:
+        existing_bounty = Bounty.query.filter_by(theorem=theorem).first()
+        if existing_bounty:
+            # Update the existing bounty amount
+            existing_bounty.bounty_amount = float(bounty_amount_ether)
+            existing_bounty.updated_at = datetime.utcnow()
+            action_name = "modified"
+        else:
+            # Add a new bounty entry
+            new_bounty = Bounty(
+                theorem=theorem, bounty_amount=float(bounty_amount_ether)
+            )
+            db.session.add(new_bounty)
+            action_name = "created"
+        db.session.commit()
+    except Exception:
+        logger.error(traceback.format_exc())
+        return jsonify({"error": "Failed to update the database"}), 500
 
-    # Create a new Bounty in the database
-    new_bounty = Bounty(
-        theorem=theorem,
-        bounty_amount=bounty_amount,
-        user_address=user_address,
-        status="open",
-    )
-    db.session.add(new_bounty)
-    db.session.commit()
-
-    return jsonify({"message": "Bounty added successfully"}), 200
+    return jsonify({"message": f"Bounty {action_name} successfully"}), 200
 
 
 @app.route("/api/check_syntax", methods=["POST"])
