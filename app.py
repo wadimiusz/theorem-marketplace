@@ -152,7 +152,7 @@ def check_syntax():
             return jsonify({"success": True}), 200
         else:
             return (
-                jsonify({"success": False, "message": response_data.get("message")}),
+                jsonify({"success": False, "message": response_data.get("stderr")}),
                 200,
             )
     except Exception:
