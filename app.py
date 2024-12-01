@@ -1,4 +1,5 @@
 import os
+import traceback
 from datetime import datetime
 
 import requests
@@ -154,8 +155,8 @@ def check_syntax():
                 jsonify({"success": False, "message": response_data.get("message")}),
                 200,
             )
-    except Exception as e:
-        print("Error communicating with the external adapter:", e)
+    except Exception:
+        print("Error communicating with the external adapter:", traceback.format_exc())
         return jsonify({"success": False, "error": "Internal server error"}), 500
 
 

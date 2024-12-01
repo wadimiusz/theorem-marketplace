@@ -24,6 +24,36 @@ window.addEventListener('DOMContentLoaded', async () => {
             statusMessage.textContent = 'Please enter your proof.';
             return;
         }
+// Disable the submit button to prevent multiple submissions
+    submitProofForm.querySelector('button[type="submit"]').disabled = true;
+
+    // **Add Syntax Checking Step**
+    statusMessage.textContent = 'Checking proof syntax... Please wait.';
+
+    try {
+        const syntaxCheckResponse = await fetch('/api/check_syntax', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ code: proof })
+        });
+        const syntaxCheckResult = await syntaxCheckResponse.json();
+
+        if (!syntaxCheckResult.success) {
+            statusMessage.textContent = `Syntax Error: ${syntaxCheckResult.error}`;
+            submitProofForm.querySelector('button[type="submit"]').disabled = false;
+            return;
+        }
+    } catch (error) {
+        console.error('Syntax checking error:', error);
+        statusMessage.textContent = 'An error occurred during syntax checking.';
+        submitProofForm.querySelector('button[type="submit"]').disabled = false;
+        return;
+    }
+
+    // Proceed with transaction as before
+    statusMessage.textContent = 'Syntax check passed. Sending transaction...';
 
         try {
     // Request account access if needed
