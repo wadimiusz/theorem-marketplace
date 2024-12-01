@@ -166,7 +166,7 @@ def check_syntax():
     # Send the theorem to the external adapter for syntax checking
     try:
         response = requests.post(
-            "http://127.0.0.1:8081/check-syntax", json={"code": code}
+            "http://127.0.0.1:8080/check-syntax", json={"code": code}
         )
         response_data = response.json()
         if response_data.get("success"):
