@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 
+import requests
 from flask import Flask, jsonify, redirect, render_template, request, url_for
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -130,6 +131,32 @@ def add_bounty():
     db.session.commit()
 
     return jsonify({"message": "Bounty added successfully"}), 200
+
+
+@app.route("/api/check_syntax", methods=["POST"])
+def check_syntax():
+    data = request.get_json()
+    code = data.get("code")
+
+    if not code:
+        return jsonify({"success": False, "error": "No code provided"}), 400
+
+    # Send the theorem to the external adapter for syntax checking
+    try:
+        response = requests.post(
+            "http://127.0.0.1:8081/check-syntax", json={"code": code}
+        )
+        response_data = response.json()
+        if response_data.get("success"):
+            return jsonify({"success": True}), 200
+        else:
+            return (
+                jsonify({"success": False, "message": response_data.get("message")}),
+                200,
+            )
+    except Exception as e:
+        print("Error communicating with the external adapter:", e)
+        return jsonify({"success": False, "error": "Internal server error"}), 500
 
 
 if __name__ == "__main__":

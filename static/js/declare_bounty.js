@@ -26,6 +26,34 @@ window.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
+        declareBountyForm.querySelector('button[type="submit"]').disabled = true;
+        statusMessage.textContent = 'Checking theorem syntax... Please wait.';
+
+        try {
+        const syntaxCheckResponse = await fetch('/api/check_syntax', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ code: theorem })
+        });
+        const syntaxCheckResult = await syntaxCheckResponse.json();
+
+        if (!syntaxCheckResult.success) {
+            statusMessage.textContent = `Syntax Error: ${syntaxCheckResult.message}`;
+            declareBountyForm.querySelector('button[type="submit"]').disabled = false;
+            return;
+        }
+    } catch (error) {
+        console.error('Syntax checking error:', error);
+        statusMessage.textContent = 'An error occurred during syntax checking.';
+        declareBountyForm.querySelector('button[type="submit"]').disabled = false;
+        return;
+    }
+
+    // Proceed with transaction as before
+    statusMessage.textContent = 'Syntax check passed. Sending transaction...';
+
         // Convert bounty amount to Wei (smallest unit of Ether)
         const bountyAmountWei = ethers.utils.parseEther(bountyAmount);
 
