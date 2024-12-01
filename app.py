@@ -124,6 +124,7 @@ def add_bounty():
     try:
         # Query the current bounty amount from the smart contract
         bounty_amount_wei = contract.functions.theoremBounties(theorem).call()
+        logger.info(f"{bounty_amount_wei = }")
         bounty_amount_ether = w3.from_wei(
             bounty_amount_wei, "ether"
         )  # Convert to Ether

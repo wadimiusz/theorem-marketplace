@@ -3,14 +3,17 @@ repos:
     rev: 24.10.0
     hooks:
       - id: black
+        language_version: python3.10
 
   - repo: https://github.com/PyCQA/flake8
     rev: 7.1.1
     hooks:
       - id: flake8
         args: [--max-line-length=120]
+        language_version: python3.10
 
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
       - id: isort
+        language_version: python3.10
