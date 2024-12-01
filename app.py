@@ -33,6 +33,7 @@ class Bounty(db.Model):
     theorem = db.Column(db.Text, unique=True, nullable=False)  # Make theorem unique
     bounty_amount = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(20), nullable=False, default="open")
+    proof = db.Column(db.Text, nullable=True)  # New field to store the proof
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -87,7 +88,7 @@ def declare_bounty():
 @app.route("/bounties")
 def bounties():
     # Retrieve all open bounties
-    found_bounties = Bounty.query.filter_by(status="open").all()
+    found_bounties = Bounty.query.all()
     return render_template("bounties.html", bounties=found_bounties)
 
 
@@ -153,6 +154,39 @@ def add_bounty():
         return jsonify({"error": "Failed to update the database"}), 500
 
     return jsonify({"message": f"Bounty {action_name} successfully"}), 200
+
+
+@app.route("/api/close_bounty", methods=["POST"])
+def close_bounty():
+    data = request.get_json()
+    theorem = data.get("theorem")
+    proof = data.get("proof")
+    # Optionally, include additional verification data such as a signature or API key
+
+    # Validate input data
+    if not all([theorem, proof]):
+        return jsonify({"error": "Missing data"}), 400
+
+    # Find the bounty in the database
+    try:
+        bounty = Bounty.query.filter_by(theorem=theorem).first()
+        if not bounty:
+            return jsonify({"error": "Bounty not found"}), 404
+    except Exception:
+        logger.error(traceback.format_exc())
+        return jsonify({"error": "Database error"}), 500
+
+    # Update the bounty status and store the proof
+    try:
+        bounty.status = "closed"
+        bounty.proof = proof
+        bounty.updated_at = datetime.utcnow()
+        db.session.commit()
+    except Exception:
+        logger.error(traceback.format_exc())
+        return jsonify({"error": "Failed to update the bounty"}), 500
+
+    return jsonify({"message": "Bounty closed successfully"}), 200
 
 
 @app.route("/api/check_syntax", methods=["POST"])
