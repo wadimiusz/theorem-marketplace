@@ -40,7 +40,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         const syntaxCheckResult = await syntaxCheckResponse.json();
 
         if (!syntaxCheckResult.success) {
-            statusMessage.textContent = `Syntax Error: ${syntaxCheckResult.message}`;
+            statusMessage.textContent = `Syntax Error: ${syntaxCheckResult.stderr}`;
             declareBountyForm.querySelector('button[type="submit"]').disabled = false;
             return;
         }
