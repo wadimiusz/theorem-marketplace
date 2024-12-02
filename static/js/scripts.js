@@ -331,7 +331,7 @@ const contractABI = [
 		"type": "function"
 	}
 ];
-const contractAddress = '0xE89B6C824938F2570ee313343E32e22ABF46e349';
+const contractAddress = '0xB5675adA34A6bD3D6d837eae82E655B73a2a8f1E';
 
 window.addEventListener('DOMContentLoaded', () => {
     const connectWalletButton = document.getElementById('connectWalletButton');
