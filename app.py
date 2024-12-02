@@ -171,7 +171,7 @@ def close_bounty():
     try:
         bounty = Bounty.query.filter_by(theorem=theorem).first()
         if not bounty:
-            return jsonify({"error": "Bounty not found"}), 404
+            return jsonify({"message": "Bounty already absent"}), 200
     except Exception:
         logger.error(traceback.format_exc())
         return jsonify({"error": "Database error"}), 500
