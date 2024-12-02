@@ -4,26 +4,32 @@
 <h2>Theorem Details</h2>
 <h3>{{ bounty.theorem }}</h3>
 <p><strong>Bounty:</strong> {{ bounty.bounty_amount }} ETH</p>
-<p><strong>Status:</strong> {{ bounty.status }}</p>
+<p><strong>Status:</strong> {{ bounty.status|capitalize }}</p>
 
-<!-- Proof Submission Form -->
-<h3>Submit Your Proof</h3>
-<form id="submitProofForm">
-    <label for="proof">Your Proof:</label><br>
-    <textarea id="proof" name="proof" rows="10" cols="60" placeholder="Enter your proof here..." required></textarea><br><br>
-    <div id="statusMessage" style="display: none;"></div>
-    <button type="submit">Submit Proof</button>
-</form>
+{% if bounty.status == 'open' %}
+    <!-- Proof Submission Form -->
+    <h3>Submit Your Proof</h3>
+    <form id="submitProofForm">
+        <label for="proof">Your Proof:</label><br>
+        <textarea id="proof" name="proof" rows="10" cols="60" placeholder="Enter your proof here..." required></textarea><br><br>
+        <div id="statusMessage" style="display: none;"></div>
+        <button type="submit">Submit Proof</button>
+    </form>
 
-<!-- Include the theorem variable in an inline script -->
-<script>
-    // Safely serialize the theorem variable to JSON
-    const theorem = {{ bounty.theorem|tojson }};
-    console.log("Theorem:", theorem);
-</script>
+    <!-- Include the theorem variable in an inline script -->
+    <script>
+        // Safely serialize the theorem variable to JSON
+        const theorem = {{ bounty.theorem|tojson }};
+        console.log("Theorem:", theorem);
+    </script>
 
-<!-- Include your external JavaScript file after defining theorem -->
-<script src="{{ url_for('static', filename='js/submit_proof.js') }}"></script>
+    <!-- Include your external JavaScript file after defining theorem -->
+    <script src="{{ url_for('static', filename='js/submit_proof.js') }}"></script>
+{% elif bounty.status == 'closed' %}
+    <!-- Display the Proof -->
+    <h3>Proof</h3>
+    <pre>{{ bounty.proof }}</pre>
+{% endif %}
 
 <p><a href="{{ url_for('bounties') }}">Back to Bounties</a></p>
 {% endblock %}

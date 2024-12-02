@@ -1,14 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>All Open Bounties</h2>
+<h2>All Bounties</h2>
 <ul>
     {% for bounty in bounties %}
     <li>
-        <a href="{{ url_for('bounty_detail', bounty_id=bounty.id) }}">{{ bounty.theorem[:50] }}...</a> - Bounty: {{ bounty.bounty_amount }} ETH
+        <a href="{{ url_for('bounty_detail', bounty_id=bounty.id) }}">{{ bounty.theorem[:50] }}...</a> -
+        Bounty: {{ bounty.bounty_amount }} ETH -
+        <strong>Status:</strong> {{ bounty.status|capitalize }}
     </li>
     {% else %}
-    <li>No open bounties at the moment.</li>
+    <li>No bounties available at the moment.</li>
     {% endfor %}
 </ul>
 {% endblock %}
