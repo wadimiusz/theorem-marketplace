@@ -7,7 +7,13 @@
     <textarea id="theorem" name="theorem" rows="5" cols="60" placeholder="Enter the theorem statement here..." required></textarea><br><br>
 
     <label for="bounty_amount">Bounty Amount (ETH):</label><br>
-    <input type="number" id="bounty_amount" name="bounty_amount" step="0.0001" placeholder="e.g., 0.5" required><br><br>
+    <input type="number"
+           id="bounty_amount"
+           name="bounty_amount"
+           step="0.0001"
+           placeholder="e.g., 0.5"
+           min="0"
+           oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null" required><br><br>
 
     <div id="statusMessage" style="display: none;"></div>
 
