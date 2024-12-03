@@ -4,8 +4,8 @@
 <h2>Declare a New Bounty</h2>
 <form id="declareBountyForm">
     <label for="theorem">Theorem Statement:</label><br>
-    <textarea id="theorem" name="theorem" rows="5" cols="60" placeholder="Enter the theorem statement here..." required>
-        {% raw %}-- Both the bounty and the submission should be valid Lean files
+    <textarea id="theorem" name="theorem" rows="5" cols="60" placeholder="Enter the theorem statement here..." required
+    style="width: 100%; height: 400px; font-family: monospace; white-space: pre; overflow-wrap: normal; resize: vertical;">{% raw %}-- Both the bounty and the submission should be valid Lean files
 -- In the bounty, you can replace the entire proof (or anything else) with a sorry
 -- In the submissions, all sorries should be defined
 
