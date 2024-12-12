@@ -52,6 +52,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
             if (!syntaxCheckResult.success) {
                 console.log(syntaxCheckResult);
+                console.log(syntaxCheckResult.success);
                 statusMessage.textContent = `Syntax Error: ${syntaxCheckResult.message}`;
                 statusMessage.classList.add('error');
                 statusMessage.style.display = 'block';
