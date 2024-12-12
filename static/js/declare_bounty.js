@@ -51,6 +51,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             const syntaxCheckResult = syntaxCheckResponse.json();
 
             if (!syntaxCheckResult.success) {
+                console.log(syntaxCheckResult);
                 statusMessage.textContent = `Syntax Error: ${syntaxCheckResult.message}`;
                 statusMessage.classList.add('error');
                 statusMessage.style.display = 'block';
@@ -58,7 +59,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
         } catch (error) {
-            console.info("syntaxCheckResult_no_json", syntaxCheckResult_no_json)
+            console.log("syntaxCheckResult_no_json", syntaxCheckResult_no_json);
             console.error('Syntax checking error:', error);
             statusMessage.textContent = 'An error occurred during syntax checking.';
             statusMessage.classList.add('error');

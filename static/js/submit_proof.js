@@ -48,7 +48,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 body: JSON.stringify({ code: proof })
             });
             const syntaxCheckResult = await syntaxCheckResponse.json();
-            console.log(syntaxCheckResult)
+
             if (!syntaxCheckResult.success) {
                 statusMessage.textContent = `Syntax Error: ${syntaxCheckResult.message}`;
                 statusMessage.classList.add('error');
