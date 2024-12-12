@@ -47,8 +47,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 },
                 body: JSON.stringify({ code: theorem })
             });
-            const syntaxCheckResult_no_json = await syntaxCheckResponse;
-            const syntaxCheckResult = syntaxCheckResponse.json();
+            const syntaxCheckResult = await syntaxCheckResponse.json();
 
             if (!syntaxCheckResult.success) {
                 console.log(syntaxCheckResult);
@@ -60,7 +59,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
         } catch (error) {
-            console.log("syntaxCheckResult_no_json", syntaxCheckResult_no_json);
+            console.log("syntaxCheckResult", syntaxCheckResult);
             console.error('Syntax checking error:', error);
             statusMessage.textContent = 'An error occurred during syntax checking.';
             statusMessage.classList.add('error');
