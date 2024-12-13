@@ -40,14 +40,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         try {
             // Syntax checking
-            const syntaxCheckResponse = await fetch('/api/check_syntax', {
+            const syntaxCheckResult = await fetch('/api/check_syntax', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ code: theorem })
-            });
-            const syntaxCheckResult = await syntaxCheckResponse.json();
+            }).json();
 
             if (!syntaxCheckResult.success) {
                 console.log(syntaxCheckResult);
