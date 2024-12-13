@@ -47,7 +47,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                 },
                 body: JSON.stringify({ code: theorem })
             });
-            const syntaxCheckResult = syntaxCheckResponse.json();
+            const syntaxCheckResult = await syntaxCheckResponse.json();
 
             if (!syntaxCheckResult.success) {
                 console.log(syntaxCheckResult);
