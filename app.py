@@ -19,8 +19,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-metamask_developer_key = os.environ["METAMASK_DEVELOPER_KEY"]
-w3 = Web3(Web3.HTTPProvider(f"https://sepolia.infura.io/v3/{metamask_developer_key}"))
+alchemy_api_key = os.environ["ALCHEMY_API_KEY"]
+w3 = Web3(Web3.HTTPProvider(f"https://eth-sepolia.g.alchemy.com/v2/{alchemy_api_key}"))
 
 with open("ABI.json") as f:
     contract_ABI = json.load(f)
