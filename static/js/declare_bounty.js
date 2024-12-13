@@ -58,7 +58,6 @@ window.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
         } catch (error) {
-            console.log("syntaxCheckResult", syntaxCheckResult);
             console.error('Syntax checking error:', error);
             statusMessage.textContent = 'An error occurred during syntax checking.';
             statusMessage.classList.add('error');
