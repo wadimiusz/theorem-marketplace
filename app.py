@@ -92,6 +92,11 @@ def bounties():
     return render_template("bounties.html", bounties=found_bounties)
 
 
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
+
 @app.route("/bounties/<int:bounty_id>")
 def bounty_detail(bounty_id):
     # Retrieve the specific bounty or return 404
