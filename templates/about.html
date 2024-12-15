@@ -2,7 +2,9 @@
 
 {% block content %}
 <h2>About Theorem Marketplace</h2>
-<p>This is a theorem marketplace. You can place a bounty on a theorem, and if someone presents a proof of your theorem, your bounty will be paid to them. This is handled by a smart contract on the Ethereum blockchain in a trustless way - so the bounty claimer doesn't need to worry about being paid.</p>
+<p>This is a theorem marketplace. You can place a bounty on a theorem, and if someone presents a proof of your theorem, your bounty will be paid to them. This is handled by a smart contract on the Ethereum blockchain in a trustless way - so the bounty claimer doesn't need to worry about being paid. (The code of the contract is published <a href="https://github.com/wadimiusz/theorem-marketplace-contract" target="_blank">here</a>.)</p>
+
+<p>Theorems are written in <a href="https://lean-lang.org" target="_blank">Lean</a> - a programming language and a theorem prover. Lean's awesome community developed this cool library called <a href="https://github.com/leanprover-community/mathlib4" target="_blank">Mathlib</a>. You can use it in your bounties and proofs - just type "import Mathlib".</p>
 
 <p>The site currently runs on play money - the so called Sepolia test net. I plan to move to mainnet when the site looks secure. Currently, to play around with bounties, you need to get some Sepolia Ether (play money). Reach out to me and I'll wire you some.</p>
 
@@ -12,7 +14,7 @@
 
 <p>I use <a href="https://github.com/GasStationManager/SafeVerify" target="_blank">SafeVerify</a> for checking a theorem proof's validity. Kudos to <a href="https://github.com/GasStationManager" target="_blank">GasStationManager</a> who authored it!</p>
 
-<p>This web site is made by <a href="https://github.com/wadimiusz" target="_blank">Vadim Fomin</a>. My reason for creating this is a more general line of thought about how to accelerate scientific progress and make the societal aggregation of knowledge more efficient; seeking of mathematical knowledge seems more given to automating and incentivizing.</p>
+<p>This website is made by <a href="https://github.com/wadimiusz" target="_blank">Vadim Fomin</a>. My reason for creating this is a more general line of thought about how to accelerate scientific progress and make the societal aggregation of knowledge more efficient; seeking of mathematical knowledge seems more given to automating and incentivizing.</p>
 
 <p>Check out my <a href="https://ratandtiger.substack.com/p/a-theorem-marketplace-a-modest-proposal" target="_blank">old post</a> where this idea is proposed. Also, feel free to check out my <a href="https://ratandtiger.substack.com/p/language-growing" target="_blank">other post</a> with musings on the probabilistic nature of language.</p>
 {% endblock %}
