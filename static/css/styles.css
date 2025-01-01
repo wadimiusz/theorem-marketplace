@@ -70,3 +70,31 @@ main {
     background-color: #fbeaea;         /* Light red background */
     color: #a94442;                    /* Dark red text */
 }
+
+.bounty-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.bounty-list li {
+    margin-bottom: 10px;
+}
+
+/* Styles for closed bounties */
+.closed-bounties .closed {
+    color: gray;
+    /* You can add text-decoration if desired */
+}
+
+/* Style links in closed bounties */
+.closed-bounties .closed a {
+    color: gray;
+    /* Optional: Add styles to indicate it's closed */
+}
+
+/* Optional: Remove hover effects for closed bounties */
+.closed-bounties .closed a:hover {
+    text-decoration: underline;
+    /* Potentially change cursor to indicate it's still clickable */
+    cursor: pointer;
+}

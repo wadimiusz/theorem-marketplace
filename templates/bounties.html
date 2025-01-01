@@ -6,10 +6,12 @@
 <!-- Open Bounties Section -->
 <h3>Open Bounties</h3>
 {% if open_bounties %}
-<ul>
+<ul class="bounty-list">
     {% for bounty in open_bounties %}
     <li>
-        <a href="{{ url_for('bounty_detail', bounty_id=bounty.id) }}">{{ bounty.theorem|truncate(50) }}</a> - Bounty: {{ bounty.bounty_amount }} ETH
+        <a href="{{ url_for('bounty_detail', bounty_id=bounty.id) }}">
+            {{ bounty.theorem|truncate(50) }}
+        </a> - Bounty: {{ bounty.bounty_amount }} ETH
     </li>
     {% endfor %}
 </ul>
@@ -20,10 +22,12 @@
 <!-- Closed Bounties Section -->
 <h3>Closed Bounties</h3>
 {% if closed_bounties %}
-<ul class="closed-bounties">
+<ul class="bounty-list closed-bounties">
     {% for bounty in closed_bounties %}
     <li class="closed">
-        {{ bounty.theorem|truncate(50) }} - Bounty: {{ bounty.bounty_amount }} ETH
+        <a href="{{ url_for('bounty_detail', bounty_id=bounty.id) }}">
+            {{ bounty.theorem|truncate(50) }}
+        </a> - Bounty: {{ bounty.bounty_amount }} ETH
     </li>
     {% endfor %}
 </ul>
