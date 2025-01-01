@@ -87,9 +87,19 @@ def declare_bounty():
 
 @app.route("/bounties")
 def bounties():
-    # Retrieve all open bounties
-    found_bounties = Bounty.query.all()
-    return render_template("bounties.html", bounties=found_bounties)
+    # Retrieve open bounties
+    open_bounties = (
+        Bounty.query.filter_by(status="open").order_by(Bounty.created_at.desc()).all()
+    )
+    # Retrieve closed bounties
+    closed_bounties = (
+        Bounty.query.filter(Bounty.status != "open")
+        .order_by(Bounty.created_at.desc())
+        .all()
+    )
+    return render_template(
+        "bounties.html", open_bounties=open_bounties, closed_bounties=closed_bounties
+    )
 
 
 @app.route("/about")
