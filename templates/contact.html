@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Contact</h2>
+<div id="walletConnectionRequired" style="display: block;">
+    <p>To prevent spam, please connect your wallet before submitting a contact form.</p>
+    <button id="connectWalletForContact" class="primary-button">Connect Wallet</button>
+</div>
+
+<div id="contactFormContainer" style="display: none;">
+    <form id="contactForm">
+        <label for="subject">Subject:</label><br>
+        <input type="text" id="subject" name="subject" required><br><br>
+        
+        <label for="message">Message:</label><br>
+        <textarea id="message" name="message" rows="5" cols="60" required></textarea><br><br>
+        
+        <p>Your wallet address: <span id="userWalletAddress"></span></p>
+        
+        <div id="statusMessage" style="display: none;"></div>
+        
+        <button type="submit">Send Message</button>
+    </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/contact.js') }}" type="module"></script>
+{% endblock %} 

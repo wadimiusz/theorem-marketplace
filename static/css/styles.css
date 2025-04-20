@@ -48,27 +48,21 @@ main {
 }
 
 #statusMessage {
-    border: 1px solid #ccc;            /* Light gray border */
-    background-color: #f8f8f8;         /* Slightly off-white background */
-    padding: 10px;                     /* Padding inside the box */
-    margin-bottom: 15px;               /* Space below the box */
-    border-radius: 5px;                /* Rounded corners */
-    font-size: 14px;                   /* Text size */
-    color: #333;                       /* Text color */
+    padding: 10px;
+    margin: 15px 0;
+    border-radius: 4px;
 }
 
-/* Success message style */
 #statusMessage.success {
-    border-color: #56b95e;             /* Green border */
-    background-color: #e8f5e9;         /* Light green background */
-    color: #256029;                    /* Dark green text */
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
 }
 
-/* Error message style */
 #statusMessage.error {
-    border-color: #e05c5c;             /* Red border */
-    background-color: #fbeaea;         /* Light red background */
-    color: #a94442;                    /* Dark red text */
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
 }
 
 .bounty-list {
@@ -97,4 +91,50 @@ main {
     text-decoration: underline;
     /* Potentially change cursor to indicate it's still clickable */
     cursor: pointer;
+}
+
+/* Contact form styles */
+#contactForm {
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+#contactForm input[type="text"],
+#contactForm textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#userWalletAddress {
+    font-family: monospace;
+    background-color: #f8f8f8;
+    padding: 3px 6px;
+    border-radius: 3px;
+    border: 1px solid #ddd;
+}
+
+.help-message {
+    background-color: #f8f8f8;
+    border-top: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    font-size: 0.9em;
+    margin-top: 30px;
+}
+
+/* Primary button styles */
+.primary-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.primary-button:hover {
+    background-color: #45a049;
 }

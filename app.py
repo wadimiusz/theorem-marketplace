@@ -1,9 +1,12 @@
 import json
 import os
+import smtplib
 import traceback
 from datetime import datetime
+from email.mime.text import MIMEText
 
 import requests
+from eth_account.messages import encode_defunct
 from flask import Flask, jsonify, redirect, render_template, request, url_for
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -228,6 +231,92 @@ def check_syntax():
     except Exception:
         print("Error communicating with the external adapter:", traceback.format_exc())
         return jsonify({"success": False, "error": "Internal server error"}), 500
+
+
+@app.route("/contact")
+def contact():
+    return render_template("contact.html")
+
+
+@app.route("/api/contact", methods=["POST"])
+def submit_contact():
+    data = request.get_json()
+    subject = data.get("subject")
+    message = data.get("message")
+    wallet_address = data.get("walletAddress")
+    signature = data.get("signature")
+    timestamp = data.get("timestamp")  # Get timestamp from frontend
+
+    # Validate input data
+    if not all([subject, message, wallet_address, signature, timestamp]):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Verify signature using web3
+    try:
+        # Recreate the message that was signed
+        message_to_verify = (
+            f"Contact Form Submission\nWallet: {wallet_address}\nTimestamp: {timestamp}"
+        )
+
+        # Convert message to the format used by eth_sign
+        message_hash = encode_defunct(text=message_to_verify)
+
+        # Recover the address from the signature
+        recovered_address = w3.eth.account.recover_message(
+            message_hash, signature=signature
+        )
+
+        # Verify that the recovered address matches the claimed address
+        if recovered_address.lower() != wallet_address.lower():
+            print(
+                f"Signature verification failed: {recovered_address} vs {wallet_address}"
+            )
+            return jsonify({"error": "Invalid signature"}), 403
+
+    except Exception:
+        print(f"Signature verification error: {traceback.format_exc()}")
+        return jsonify({"error": "Failed to verify signature"}), 400
+
+    # Format the email
+    email_subject = f"[Theorem Marketplace] {subject}"
+    email_body = f"""
+New message from the Theorem Marketplace:
+
+Subject: {subject}
+From Wallet: {wallet_address}
+
+Message:
+{message}
+
+Signature verified: Yes
+Timestamp: {datetime.fromtimestamp(int(timestamp)/1000).strftime('%Y-%m-%d %H:%M:%S UTC')}
+"""
+
+    # Get email configuration from environment variables
+    admin_email = os.environ.get("ADMIN_EMAIL", "your-email@example.com")
+    smtp_server = os.environ.get("SMTP_SERVER", "smtp.gmail.com")
+    smtp_port = int(os.environ.get("SMTP_PORT", 587))
+    smtp_username = os.environ.get("SMTP_USERNAME", "")
+    smtp_password = os.environ.get("SMTP_PASSWORD", "")
+
+    try:
+        # Create the email
+        msg = MIMEText(email_body)
+        msg["Subject"] = email_subject
+        msg["From"] = smtp_username
+        msg["To"] = admin_email
+
+        # Send the email
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(smtp_username, smtp_password)
+        server.send_message(msg)
+        server.quit()
+
+        return jsonify({"message": "Contact form submitted successfully"}), 200
+    except Exception as e:
+        print("Error sending email:", str(e))
+        return jsonify({"error": "Failed to send your message. Please try again."}), 500
 
 
 if __name__ == "__main__":

@@ -16,6 +16,7 @@
             <li><a href="/declare_bounty">Declare a Bounty</a></li>
             <li><a href="/bounties">View Bounties</a></li>
             <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
             <li style="float:right;">
                 <button id="connectWalletButton">Connect Wallet</button>
             </li>
@@ -28,6 +29,10 @@
         <!-- Child templates will inject content here -->
         {% endblock %}
     </main>
+
+    <div class="help-message">
+        <p>Something is not working? <a href="/contact">Contact me</a></p>
+    </div>
 
     <footer>
         <p>&copy; {{ current_year }} Theorem Marketplace</p>
