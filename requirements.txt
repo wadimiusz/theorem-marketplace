@@ -5,3 +5,4 @@ Flask-Migrate
 web3
 requests
 gunicorn
+boto3

@@ -22,6 +22,22 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code to the container
 COPY . .
 
+# Add a comment documenting required environment variables
+# The following environment variables must be provided at runtime:
+# - DATABASE_PASSWORD: PostgreSQL database password
+# - ALCHEMY_API_KEY: Alchemy API key for Web3 interaction
+# - CONTRACT_ADDRESS: Ethereum smart contract address
+# - ADMIN_EMAIL: Email address to receive contact form submissions
+# - SENDER_EMAIL: Email address to send from (must be verified in SES)
+# - AWS_REGION: AWS region where SES is configured (default: eu-north-1)
+# 
+# AWS credentials must be provided in one of these ways:
+# 1. Environment variables:
+#    - AWS_ACCESS_KEY_ID
+#    - AWS_SECRET_ACCESS_KEY
+# 2. Mounted AWS credentials file (~/.aws/credentials)
+# 3. EC2 instance role if running on AWS
+
 # Expose the port that the app runs on
 EXPOSE 5000
 

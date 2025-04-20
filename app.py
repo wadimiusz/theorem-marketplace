@@ -1,11 +1,11 @@
 import json
 import os
-import smtplib
 import traceback
 from datetime import datetime
-from email.mime.text import MIMEText
 
+import boto3
 import requests
+from botocore.exceptions import ClientError
 from eth_account.messages import encode_defunct
 from flask import Flask, jsonify, redirect, render_template, request, url_for
 from flask_migrate import Migrate
@@ -290,33 +290,50 @@ Message:
 
 Signature verified: Yes
 Timestamp: {datetime.fromtimestamp(int(timestamp)/1000).strftime('%Y-%m-%d %H:%M:%S UTC')}
-"""
+    """
 
     # Get email configuration from environment variables
-    admin_email = os.environ.get("ADMIN_EMAIL", "your-email@example.com")
-    smtp_server = os.environ.get("SMTP_SERVER", "smtp.gmail.com")
-    smtp_port = int(os.environ.get("SMTP_PORT", 587))
-    smtp_username = os.environ.get("SMTP_USERNAME", "")
-    smtp_password = os.environ.get("SMTP_PASSWORD", "")
+    admin_email = os.environ["ADMIN_EMAIL"]
+    sender_email = os.environ["SENDER_EMAIL"]
+    aws_region = os.environ["AWS_REGION"]
 
     try:
-        # Create the email
-        msg = MIMEText(email_body)
-        msg["Subject"] = email_subject
-        msg["From"] = smtp_username
-        msg["To"] = admin_email
+        # Create a new SES client
+        ses_client = boto3.client("ses", region_name=aws_region)
 
-        # Send the email
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(smtp_username, smtp_password)
-        server.send_message(msg)
-        server.quit()
+        # Send the email using Amazon SES
+        response = ses_client.send_email(
+            Destination={
+                "ToAddresses": [admin_email],
+            },
+            Message={
+                "Body": {
+                    "Text": {
+                        "Charset": "UTF-8",
+                        "Data": email_body,
+                    },
+                },
+                "Subject": {
+                    "Charset": "UTF-8",
+                    "Data": email_subject,
+                },
+            },
+            Source=sender_email,
+        )
 
+        print(f"Email sent! Message ID: {response['MessageId']}")
         return jsonify({"message": "Contact form submitted successfully"}), 200
-    except Exception as e:
-        print("Error sending email:", str(e))
+
+    except ClientError as e:
+        error_message = e.response["Error"]["Message"]
+        print(f"Error sending email: {error_message}")
         return jsonify({"error": "Failed to send your message. Please try again."}), 500
+    except Exception:
+        print(f"Unexpected error sending email: {traceback.format_exc()}")
+        return (
+            jsonify({"error": "An unexpected error occurred. Please try again."}),
+            500,
+        )
 
 
 if __name__ == "__main__":
