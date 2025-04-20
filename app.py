@@ -243,6 +243,7 @@ def submit_contact():
     data = request.get_json()
     subject = data.get("subject")
     message = data.get("message")
+    email = data.get("email", "")  # Optional email field
     wallet_address = data.get("walletAddress")
     signature = data.get("signature")
     timestamp = data.get("timestamp")  # Get timestamp from frontend
@@ -279,11 +280,13 @@ def submit_contact():
 
     # Format the email
     email_subject = f"[Theorem Marketplace] {subject}"
+
     email_body = f"""
 New message from the Theorem Marketplace:
 
 Subject: {subject}
 From Wallet: {wallet_address}
+{f"Contact Email: {email}" if email else "No email provided for reply"}
 
 Message:
 {message}
@@ -301,12 +304,12 @@ Timestamp: {datetime.fromtimestamp(int(timestamp)/1000).strftime('%Y-%m-%d %H:%M
         # Create a new SES client
         ses_client = boto3.client("ses", region_name=aws_region)
 
-        # Send the email using Amazon SES
-        response = ses_client.send_email(
-            Destination={
+        # Configure reply-to header if email was provided
+        email_args = {
+            "Destination": {
                 "ToAddresses": [admin_email],
             },
-            Message={
+            "Message": {
                 "Body": {
                     "Text": {
                         "Charset": "UTF-8",
@@ -318,8 +321,15 @@ Timestamp: {datetime.fromtimestamp(int(timestamp)/1000).strftime('%Y-%m-%d %H:%M
                     "Data": email_subject,
                 },
             },
-            Source=sender_email,
-        )
+            "Source": sender_email,
+        }
+
+        # Add Reply-To header if email was provided
+        if email:
+            email_args["ReplyToAddresses"] = [email]
+
+        # Send the email using Amazon SES
+        response = ses_client.send_email(**email_args)
 
         print(f"Email sent! Message ID: {response['MessageId']}")
         return jsonify({"message": "Contact form submitted successfully"}), 200

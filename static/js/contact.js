@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         const subject = document.getElementById('subject').value;
         const message = document.getElementById('message').value;
+        const email = document.getElementById('email').value; // Get email value (can be empty)
         const walletAddress = window.ethereum.selectedAddress;
         const timestamp = Date.now().toString();
 
@@ -69,6 +70,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 body: JSON.stringify({
                     subject,
                     message,
+                    email, // Include the optional email field
                     walletAddress,
                     signature,
                     timestamp // Include timestamp for verification
