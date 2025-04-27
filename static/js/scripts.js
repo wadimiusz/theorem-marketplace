@@ -1,3 +1,5 @@
+import { ensureSepoliaNetwork } from './utils.js';
+
 const contractABI = [
 	{
 		"anonymous": false,
@@ -351,11 +353,16 @@ window.addEventListener('DOMContentLoaded', () => {
                 // Update the button text or display the account
                 connectWalletButton.textContent = 'Connected: ' + account.substring(0, 6) + '...' + account.slice(-4);
 
-                // Optionally, store the account information for later use
-                // e.g., window.userAccount = account;
-
                 // Disable the button after connection
                 connectWalletButton.disabled = true;
+
+                // Ensure wallet is on Sepolia to avoid network mismatch when browsing the site
+                try {
+                    await ensureSepoliaNetwork();
+                } catch (netErr) {
+                    console.error('Failed to switch to Sepolia:', netErr);
+                    alert('Please switch your wallet to the Sepolia test network to use this site.');
+                }
             } catch (error) {
                 console.error('User rejected the connection request');
             }

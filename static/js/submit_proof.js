@@ -1,3 +1,5 @@
+import { ensureSepoliaNetwork } from './utils.js';
+
 window.addEventListener('DOMContentLoaded', async () => {
     // Check if MetaMask is installed
     if (typeof window.ethereum !== 'undefined') {
@@ -71,6 +73,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         statusMessage.style.display = 'block';
 
         try {
+            // Ensure wallet is on Sepolia network
+            await ensureSepoliaNetwork();
+
             // Request account access if needed
             await window.ethereum.request({ method: 'eth_requestAccounts' });
 

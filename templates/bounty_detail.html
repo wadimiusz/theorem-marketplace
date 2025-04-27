@@ -25,7 +25,7 @@
     </script>
 
     <!-- Include your external JavaScript file after defining theorem -->
-    <script src="{{ url_for('static', filename='js/submit_proof.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/submit_proof.js') }}" type="module"></script>
 {% elif bounty.status == 'closed' %}
     <!-- Display the Proof -->
     <h3>Proof</h3>
