@@ -84,7 +84,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             const signer = provider.getSigner();
 
             // Instantiate the contract
-            const contract = new ethers.Contract(contractAddress, contractABI, signer);
+            const contract = new ethers.Contract(window.contractAddress, window.contractABI, signer);
 
             // Send the transaction
             const tx = await contract.requestBounty(theorem, proof);

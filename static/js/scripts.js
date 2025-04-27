@@ -335,6 +335,10 @@ const contractABI = [
 ];
 const contractAddress = '0x95F6Adaa8bC4848D203bE0e5FAC2F2A2bAF29bA2';
 
+// Expose constants globally so other modules can access them before import support
+window.contractAddress = contractAddress;
+window.contractABI = contractABI;
+
 window.addEventListener('DOMContentLoaded', () => {
     const connectWalletButton = document.getElementById('connectWalletButton');
 
