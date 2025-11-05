@@ -1,8 +1,48 @@
 import os
 from datetime import datetime
 from decimal import Decimal
+from typing import TypedDict
+
+from web3.datastructures import AttributeDict
 
 from app import Bounty, app, contract, db, w3
+
+
+class ClosedBountyProperties(TypedDict):
+    requestTxHash: str
+    value: int
+    proof: str
+    closed_at: datetime
+
+
+class OpenBountyProperties(TypedDict):
+    value: int
+    created_at: datetime
+
+
+def get_transaction_or_log_datetime(entity: AttributeDict) -> datetime:
+    block = w3.eth.get_block(entity.blockNumber)
+    return datetime.fromtimestamp(block.timestamp)
+
+
+def get_open_bounty_properties(log: AttributeDict) -> OpenBountyProperties:
+    return OpenBountyProperties(
+        value=wei_to_ether(log.args.value),
+        created_at=get_transaction_or_log_datetime(log),
+    )
+
+
+def get_closed_bounty_properties(log: AttributeDict) -> ClosedBountyProperties:
+
+    transaction = w3.eth.get_transaction(log.args.requestTxHash.hex())
+    _, decoded_input = contract.decode_function_input(transaction.input)
+
+    return ClosedBountyProperties(
+        requestTxHash=log.args.requestTxHash.hex(),
+        value=wei_to_ether(log.args.value),
+        proof=decoded_input["proof"],
+        closed_at=get_transaction_or_log_datetime(transaction),
+    )
 
 
 def reconstruct_state(from_block: int = 0):
@@ -10,12 +50,13 @@ def reconstruct_state(from_block: int = 0):
     declared_logs = contract.events.BountyDeclared.get_logs(from_block=from_block)
     paid_logs = contract.events.BountyPaid.get_logs(from_block=from_block)
 
-    declared_theorems = {log.args.theorem for log in declared_logs}
-    closed_bounties = {
-        log.args.theorem: log.args.requestTxHash.hex() for log in paid_logs
+    declared_theorems: set[str] = {log.args.theorem for log in declared_logs}
+    closed_bounties: dict[str, ClosedBountyProperties] = {
+        log.args.theorem: get_closed_bounty_properties(log) for log in paid_logs
     }
-    open_bounties = {
-        theorem: wei_to_ether(contract.functions.theoremBounties(theorem).call())
+    open_bounties: dict[str, OpenBountyProperties] = {
+        theorem: get_open_bounty_properties(log)
+        for log in declared_logs
         for theorem in declared_theorems - closed_bounties.keys()
     }
 
@@ -31,39 +72,34 @@ def sync_database(open_bounties: dict, closed_bounties: dict):
     existing_bounties = {b.theorem: b for b in Bounty.query.all()}
 
     # Handle open bounties
-    for theorem, wei_val in open_bounties.items():
-        ether_val = float(wei_to_ether(wei_val))
+    for theorem, open_bounty_properties in open_bounties.items():
         if theorem in existing_bounties:
             bounty = existing_bounties[theorem]
             bounty.status = "open"
-            bounty.bounty_amount = ether_val
-            bounty.updated_at = datetime.utcnow()
+            bounty.bounty_amount = open_bounty_properties["value"]
+            bounty.updated_at = open_bounty_properties["created_at"]
         else:
             bounty = Bounty(
                 theorem=theorem,
-                bounty_amount=ether_val,
+                bounty_amount=open_bounty_properties["value"],
                 status="open",
-                created_at=datetime.utcnow(),
+                created_at=open_bounty_properties["created_at"],
             )
             db.session.add(bounty)
 
     # Handle closed bounties
-    for theorem, req_tx_hash in closed_bounties.items():
+    for theorem, closed_bounty_properties in closed_bounties.items():
         bounty = existing_bounties.get(theorem)
         if bounty:
             bounty.status = "closed"
-            bounty.updated_at = datetime.utcnow()
-            # Optionally store requestTxHash in proof field if proof is empty
-            if not bounty.proof:
-                bounty.proof = f"requestTxHash: {req_tx_hash}"
+            bounty.updated_at = closed_bounty_properties["closed_at"]
         else:
-            # Closed bounty not present – create with zero amount
             bounty = Bounty(
                 theorem=theorem,
-                bounty_amount=0.0,
+                bounty_amount=closed_bounty_properties["value"],
                 status="closed",
-                proof=f"requestTxHash: {req_tx_hash}",
-                created_at=datetime.utcnow(),
+                proof=closed_bounty_properties["proof"],
+                created_at=closed_bounty_properties["closed_at"],
             )
             db.session.add(bounty)
 
