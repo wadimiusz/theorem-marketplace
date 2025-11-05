@@ -24,7 +24,7 @@ COPY . .
 
 # The following environment variables must be provided at runtime:
 # - DATABASE_PASSWORD: PostgreSQL database password
-# - ALCHEMY_API_KEY: Alchemy API key for Web3 interaction
+# - HTTP_PROVIDER: HTTP provider URL for Web3 interaction; for example, https://eth-sepolia.g.alchemy.com/v2/your-api-key (or metamask, or any other provider)
 # - CONTRACT_ADDRESS: Ethereum smart contract address
 # - ADMIN_EMAIL: Email address to receive contact form submissions
 # - SENDER_EMAIL: Email address to send from (must be verified in SES)
