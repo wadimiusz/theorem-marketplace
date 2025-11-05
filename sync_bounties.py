@@ -10,28 +10,14 @@ def reconstruct_state(from_block: int = 0):
     declared_logs = contract.events.BountyDeclared.get_logs(from_block=from_block)
     paid_logs = contract.events.BountyPaid.get_logs(from_block=from_block)
 
-    # Combine and sort chronologically
-    all_logs = declared_logs + paid_logs
-    # Sort by blockNumber then logIndex to keep deterministic order
-    all_logs.sort(key=lambda log: (log["blockNumber"], log["logIndex"]))
-
-    open_bounties = {}
-    closed_bounties = {}
-
-    for log in all_logs:
-        # web3 v6 uses "event" attribute, but we already know by source
-        # We'll inspect the event signature by dict keys
-        if "value" in log["args"] and "theorem" in log["args"]:
-            if "requestTxHash" in log["args"]:
-                # This is BountyPaid
-                theorem = log["args"]["theorem"]
-                closed_bounties[theorem] = log["args"]["requestTxHash"].hex()
-                open_bounties.pop(theorem, None)
-            else:
-                # BountyDeclared
-                theorem = log["args"]["theorem"]
-                value = int(log["args"]["value"])
-                open_bounties[theorem] = open_bounties.get(theorem, 0) + value
+    declared_theorems = {log.args.theorem for log in declared_logs}
+    closed_bounties = {
+        log.args.theorem: log.args.requestTxHash.hex() for log in paid_logs
+    }
+    open_bounties = {
+        theorem: wei_to_ether(contract.functions.theoremBounties(theorem).call())
+        for theorem in declared_theorems - closed_bounties.keys()
+    }
 
     return open_bounties, closed_bounties
 
