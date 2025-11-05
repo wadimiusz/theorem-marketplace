@@ -5,22 +5,10 @@ from decimal import Decimal
 from app import Bounty, app, contract, db, w3
 
 
-def get_events(event_klass, from_block: int = 0):
-    """Utility to fetch all events of a given class from the blockchain."""
-    latest = w3.eth.block_number
-    # Web3 paginates internally when range is too wide, so we chunk
-    step = 10_000  # blocks per request (tweak if needed)
-    events = []
-    for start in range(from_block, latest + 1, step):
-        end = min(start + step - 1, latest)
-        events.extend(event_klass.get_logs(from_block=start, to_block=end))
-    return events
-
-
 def reconstruct_state(from_block: int = 0):
     """Reconstruct open / closed bounty mappings from emitted events."""
-    declared_logs = get_events(contract.events.BountyDeclared, from_block)
-    paid_logs = get_events(contract.events.BountyPaid, from_block)
+    declared_logs = contract.events.BountyDeclared.get_logs(from_block=from_block)
+    paid_logs = contract.events.BountyPaid.get_logs(from_block=from_block)
 
     # Combine and sort chronologically
     all_logs = declared_logs + paid_logs
