@@ -8,6 +8,8 @@ import requests
 from botocore.exceptions import ClientError
 from eth_account.messages import encode_defunct
 from flask import Flask, jsonify, redirect, render_template, request, url_for
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql.psycopg2 import logger
@@ -21,6 +23,14 @@ app.config["SQLALCHEMY_DATABASE_URI"] = (
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+# Rate limiting
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    storage_uri="memory://",
+    default_limits=["200 per day", "50 per hour"],
+)
 
 alchemy_api_key = os.environ["ALCHEMY_API_KEY"]
 w3 = Web3(Web3.HTTPProvider(f"https://eth-sepolia.g.alchemy.com/v2/{alchemy_api_key}"))
@@ -118,6 +128,7 @@ def bounty_detail(bounty_id):
 
 
 @app.route("/api/add_bounty", methods=["POST"])
+@limiter.limit("20 per hour")
 def add_bounty():
     data = request.get_json()
     theorem = data.get("theorem")
@@ -138,6 +149,12 @@ def add_bounty():
     receipt = w3.eth.get_transaction_receipt(transaction_hash)
     if receipt.status != 1:
         return jsonify({"error": "Transaction failed"}), 400
+
+    if receipt.to != contract.address:
+        return (
+            jsonify({"error": "Transaction was not sent to the correct contract"}),
+            400,
+        )
 
     # Call the smart contract to get the latest bounty amount
     try:
@@ -175,6 +192,7 @@ def add_bounty():
 
 
 @app.route("/api/close_bounty", methods=["POST"])
+@limiter.limit("20 per hour")
 def close_bounty():
     data = request.get_json()
     theorem = data.get("theorem")
@@ -208,6 +226,7 @@ def close_bounty():
 
 
 @app.route("/api/check_syntax", methods=["POST"])
+@limiter.limit("30 per hour")
 def check_syntax():
     data = request.get_json()
     code = data.get("code")
@@ -239,6 +258,7 @@ def contact():
 
 
 @app.route("/api/contact", methods=["POST"])
+@limiter.limit("5 per hour")
 def submit_contact():
     data = request.get_json()
     subject = data.get("subject")
@@ -344,6 +364,13 @@ Timestamp: {datetime.fromtimestamp(int(timestamp)/1000).strftime('%Y-%m-%d %H:%M
             jsonify({"error": "An unexpected error occurred. Please try again."}),
             500,
         )
+
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    if request.path.startswith("/api/"):
+        return jsonify({"error": "Too Many Requests"}), 429
+    return "Too Many Requests", 429
 
 
 if __name__ == "__main__":

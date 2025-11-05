@@ -6,3 +6,4 @@ web3
 requests
 gunicorn
 boto3
+Flask-Limiter

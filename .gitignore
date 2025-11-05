@@ -1,0 +1,52 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+env/
+.venv/
+venv/
+ENV/
+
+# Environment files
+.env
+.env.*
+
+# Build artifacts
+build/
+dist/
+pip-wheel-metadata/
+*.egg-info/
+
+# Databases
+*.sqlite
+*.db
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+all_urls_ever_requested.txt
+
+# Flask instance folder
+instance/
+
+# IDE/editor settings
+.idea/
+.vscode/
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Caches and reports
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+
+

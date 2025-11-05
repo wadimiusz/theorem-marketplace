@@ -1,0 +1,40 @@
+# VCS
+.git
+
+# Python cache and build
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+build/
+dist/
+
+# Virtual envs
+env/
+.venv/
+venv/
+ENV/
+
+# Environment files
+.env
+.env.*
+
+# Logs and temp
+*.log
+*.tmp
+*.swp
+all_urls_ever_requested.txt
+
+# IDE/editor
+.vscode/
+.idea/
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+

@@ -22,7 +22,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code to the container
 COPY . .
 
-# Add a comment documenting required environment variables
 # The following environment variables must be provided at runtime:
 # - DATABASE_PASSWORD: PostgreSQL database password
 # - ALCHEMY_API_KEY: Alchemy API key for Web3 interaction
