@@ -10,7 +10,7 @@ WORKDIR /app
 
 # Install system dependencies, if needed
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc libpq-dev \
+    && apt-get install -y --no-install-recommends gcc libpq-dev cron \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the application's requirements file to the container
@@ -19,8 +19,15 @@ COPY requirements.txt .
 # Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code to the container
+# copy source
 COPY . .
+
+
+# Create cron file running sync_bounties.py at minute 0 of every hour
+RUN echo "0 * * * * root python /app/sync_bounties.py >> /var/log/cron.log 2>&1" > /etc/cron.d/sync_bounties \
+    && chmod 0644 /etc/cron.d/sync_bounties \
+    && crontab /etc/cron.d/sync_bounties
+
 
 # The following environment variables must be provided at runtime:
 # - DATABASE_PASSWORD: PostgreSQL database password
@@ -40,5 +47,5 @@ COPY . .
 # Expose the port that the app runs on
 EXPOSE 5000
 
-# Command to run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "info", "app:app"]
+# Command to run cron (in background) and then launch gunicorn
+CMD bash -c "cron && exec gunicorn --bind 0.0.0.0:5000 --access-logfile - --error-logfile - --log-level info app:app"
