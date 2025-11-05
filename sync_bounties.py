@@ -13,11 +13,7 @@ def get_events(event_klass, from_block: int = 0):
     events = []
     for start in range(from_block, latest + 1, step):
         end = min(start + step - 1, latest)
-        try:
-            events.extend(event_klass.get_logs(fromBlock=start, toBlock=end))
-        except Exception as exc:
-            print(f"Error fetching logs {event_klass.event_name} {start}-{end}: {exc}")
-            continue
+        events.extend(event_klass.get_logs(from_block=start, to_block=end))
     return events
 
 
