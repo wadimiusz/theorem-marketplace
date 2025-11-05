@@ -32,8 +32,8 @@ limiter = Limiter(
     default_limits=["200 per day", "50 per hour"],
 )
 
-alchemy_api_key = os.environ["ALCHEMY_API_KEY"]
-w3 = Web3(Web3.HTTPProvider(f"https://eth-sepolia.g.alchemy.com/v2/{alchemy_api_key}"))
+http_provider = os.environ["HTTP_PROVIDER"]
+w3 = Web3(Web3.HTTPProvider(http_provider))
 
 with open("ABI.json") as f:
     contract_ABI = json.load(f)
