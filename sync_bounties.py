@@ -55,9 +55,9 @@ def reconstruct_state(from_block: int = 0):
         log.args.theorem: get_closed_bounty_properties(log) for log in paid_logs
     }
     open_bounties: dict[str, OpenBountyProperties] = {
-        theorem: get_open_bounty_properties(log)
+        log.args.theorem: get_open_bounty_properties(log)
         for log in declared_logs
-        for theorem in declared_theorems - closed_bounties.keys()
+        if log.args.theorem in declared_theorems - closed_bounties.keys()
     }
 
     return open_bounties, closed_bounties
