@@ -4,7 +4,7 @@ This is the source code of my website https://theorem-marketplace.com. It was in
 
 The project is somewhat complex and juggles five different docker containers. In an ideal world, I'd make you a neat docker compose file to coordinate them. In the real world... Well, I didn't. If you find this repo useful / wish to reproduce this, I'll try to make this repo slightly friendlier for first time use.
 
-The containers required are:
+The containers required are:\
 · theorem-marketplace (this repo, described in the dockerfile) — the web site itself, runs on port 8000.\
 · a chainlink node. you can read how to start one [here](https://docs.chain.link/chainlink-nodes/v1/running-a-chainlink-node).\
 · a postgres container required by the chainlink node as described in the "running a node" article.\
