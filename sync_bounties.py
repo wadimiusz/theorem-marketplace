@@ -91,7 +91,10 @@ def sync_database(open_bounties: dict, closed_bounties: dict):
     for theorem, closed_bounty_properties in closed_bounties.items():
         bounty = existing_bounties.get(theorem)
         if bounty:
+            bounty.theorem = theorem
+            bounty.bounty_amount = closed_bounty_properties["value"]
             bounty.status = "closed"
+            bounty.proof = closed_bounty_properties["proof"]
             bounty.updated_at = closed_bounty_properties["closed_at"]
         else:
             bounty = Bounty(
@@ -99,7 +102,7 @@ def sync_database(open_bounties: dict, closed_bounties: dict):
                 bounty_amount=closed_bounty_properties["value"],
                 status="closed",
                 proof=closed_bounty_properties["proof"],
-                created_at=closed_bounty_properties["closed_at"],
+                updated_at=closed_bounty_properties["closed_at"],
             )
             db.session.add(bounty)
 
