@@ -1,0 +1,3 @@
+[submodule "safe-verify-adapter"]
+	path = safe-verify-adapter
+	url = https://github.com/wadimiusz/safe-verify-adapter.git
