@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Authorize a Chainlink node wallet on the Oracle contract."""
 
+import getpass
 import os
-import sys
 
 from web3 import Web3
 
@@ -24,12 +24,9 @@ ORACLE_ABI = [
 RPC_URL = os.environ.get(
     "RPC_URL", "https://sepolia.infura.io/v3/6cd4a2c5b42f4422a1e0ad5de0ef0722"
 )
-PRIVATE_KEY = os.environ.get("PRIVATE_KEY")
-
-if not PRIVATE_KEY:
-    print("Set PRIVATE_KEY env var to the oracle owner's private key")
-    print("Usage: PRIVATE_KEY=0x... python scripts/authorize_node.py")
-    sys.exit(1)
+PRIVATE_KEY = os.environ.get("PRIVATE_KEY") or getpass.getpass(
+    "Oracle owner private key: "
+)
 
 w3 = Web3(Web3.HTTPProvider(RPC_URL))
 account = w3.eth.account.from_key(PRIVATE_KEY)
@@ -39,13 +36,16 @@ print(f"Oracle contract: {ORACLE_ADDRESS}")
 print(f"Authorizing node wallet: {NODE_WALLET}")
 print(f"Signing with: {account.address}")
 
+max_priority = w3.to_wei(1, "gwei")
+max_fee = max(w3.eth.gas_price * 2, max_priority + w3.to_wei(1, "gwei"))
+
 tx = oracle.functions.setAuthorizedSenders([NODE_WALLET]).build_transaction(
     {
         "from": account.address,
         "nonce": w3.eth.get_transaction_count(account.address),
-        "gas": 100000,
-        "maxFeePerGas": w3.eth.gas_price * 2,
-        "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
+        "gas": 300000,
+        "maxFeePerGas": max_fee,
+        "maxPriorityFeePerGas": max_priority,
     }
 )
 
