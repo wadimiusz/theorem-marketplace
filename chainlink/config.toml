@@ -1,0 +1,43 @@
+[Log]
+Level = 'warn'
+
+[WebServer]
+AllowOrigins = '*'
+SecureCookies = false
+
+[WebServer.TLS]
+HTTPSPort = 0
+
+[[EVM]]
+ChainID = '11155111'
+FinalityDepth = 10
+
+[EVM.HeadTracker]
+HistoryDepth = 50
+
+[EVM.NodePool]
+PollInterval = '30s'
+
+# Primary: Infura (reliable, has WSS)
+# Replace YOUR_INFURA_PROJECT_ID with your actual project ID
+[[EVM.Nodes]]
+Name = 'Infura'
+WSURL = 'wss://sepolia.infura.io/ws/v3/YOUR_INFURA_PROJECT_ID'
+HTTPURL = 'https://sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID'
+
+# SendOnly fallbacks for transaction broadcasting (reduces load on primary)
+[[EVM.Nodes]]
+Name = 'DRPC'
+HTTPURL = 'https://sepolia.drpc.org'
+SendOnly = true
+
+[[EVM.Nodes]]
+Name = 'PublicNode'
+HTTPURL = 'https://ethereum-sepolia-rpc.publicnode.com'
+SendOnly = true
+
+[JobPipeline]
+MaxRunDuration = '60m'
+
+[JobPipeline.HTTPRequest]
+DefaultTimeout = '600s'

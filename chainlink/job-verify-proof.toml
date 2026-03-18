@@ -1,0 +1,43 @@
+# Chainlink Job: Verify Proof
+#
+# This job listens for OracleRequest events from the TheoremMarketplace contract,
+# sends the theorem and proof to the safe-verify-adapter for verification,
+# and calls back the contract with the result.
+#
+# To add this job:
+# 1. Access the Chainlink node UI at http://localhost:6688
+# 2. Log in with the credentials you set during node initialization
+# 3. Go to Jobs -> New Job
+# 4. Paste this TOML configuration
+# 5. Create the job
+#
+# IMPORTANT: Update the contractAddress to match your deployed contract
+
+type = "directrequest"
+schemaVersion = 1
+name = "verify-proof"
+contractAddress = "0xc3e350a4Bc67c8e20e031121fF8fCc680809A9a3"  # Oracle contract address
+minIncomingConfirmations = 0
+minContractPaymentLinkJuels = "0"
+evmChainID = "11155111"
+
+observationSource = """
+    decode_log   [type="ethabidecodelog"
+                  abi="OracleRequest(bytes32 indexed specId, address requester, bytes32 requestId, uint256 payment, address callbackAddr, bytes4 callbackFunctionId, uint256 cancelExpiration, uint256 dataVersion, bytes data)"
+                  data="$(jobRun.logData)"
+                  topics="$(jobRun.logTopics)"]
+
+    decode_cbor  [type="cborparse" data="$(decode_log.data)"]
+    fetch        [type="http" method=POST url="http://safe-verify-adapter:8080/verify-proof" requestData="$(decode_cbor)" allowUnrestrictedNetworkAccess="true"]
+    parse        [type="jsonparse" path="success" data="$(fetch)"]
+
+    encode_data  [type="ethabiencode" abi="(bytes32 requestId, bool success, bytes32 requestTxHash)" data="{ \\"requestId\\": $(decode_log.requestId), \\"success\\": $(parse), \\"requestTxHash\\": $(jobRun.logTxHash) }"]
+
+    encode_tx    [type="ethabiencode"
+                  abi="fulfillOracleRequest2(bytes32 requestId, uint256 payment, address callbackAddress, bytes4 callbackFunctionId, uint256 expiration, bytes calldata data)"
+                  data="{\\"requestId\\": $(decode_log.requestId), \\"payment\\": $(decode_log.payment), \\"callbackAddress\\": $(decode_log.callbackAddr), \\"callbackFunctionId\\": $(decode_log.callbackFunctionId), \\"expiration\\": $(decode_log.cancelExpiration), \\"data\\": $(encode_data)}"
+                  ]
+    submit_tx    [type="ethtx" to="0xc3e350a4Bc67c8e20e031121fF8fCc680809A9a3" data="$(encode_tx)"]
+
+    decode_log -> decode_cbor -> fetch -> parse -> encode_data -> encode_tx -> submit_tx
+"""

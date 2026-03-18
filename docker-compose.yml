@@ -1,0 +1,126 @@
+version: "3.8"
+
+services:
+  # =============================================================================
+  # PostgreSQL for Chainlink node
+  # =============================================================================
+  cl-postgres:
+    image: postgres:17
+    container_name: cl-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${CL_POSTGRES_PASSWORD}
+    volumes:
+      - cl-postgres-data:/var/lib/postgresql/data
+    networks:
+      - theorem-marketplace
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # =============================================================================
+  # PostgreSQL for Theorem Marketplace app
+  # =============================================================================
+  theorem-postgres:
+    image: postgres:17
+    container_name: theorem_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: theorem_user
+      POSTGRES_DB: theorem_marketplace
+      POSTGRES_PASSWORD: ${THEOREM_POSTGRES_PASSWORD}
+    volumes:
+      - theorem-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # Expose on different port to avoid conflict with cl-postgres
+    networks:
+      - theorem-marketplace
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U theorem_user -d theorem_marketplace"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # =============================================================================
+  # Chainlink Oracle Node
+  # =============================================================================
+  chainlink:
+    image: smartcontract/chainlink:2.20.0
+    container_name: chainlink
+    restart: unless-stopped
+    command: node -config /chainlink/config.toml -secrets /chainlink/secrets.toml
+    volumes:
+      - ./chainlink:/chainlink
+    ports:
+      - "6688:6688"
+    networks:
+      - theorem-marketplace
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      cl-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6688/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # =============================================================================
+  # Safe Verify Adapter - Lean proof verification service
+  # =============================================================================
+  safe-verify-adapter:
+    build:
+      context: ./safe-verify-adapter
+      dockerfile: Dockerfile
+    image: safe-verify-adapter
+    container_name: safe-verify-adapter
+    restart: unless-stopped
+    environment:
+      WORKING_DIR: /tmp/safeverify
+    ports:
+      - "8080:8080"
+    networks:
+      - theorem-marketplace
+
+  # =============================================================================
+  # Theorem Marketplace - Main Flask application
+  # =============================================================================
+  theorem-marketplace:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: theorem-marketplace
+    container_name: theorem-marketplace
+    restart: unless-stopped
+    environment:
+      DATABASE_PASSWORD: ${THEOREM_POSTGRES_PASSWORD}
+      CONTRACT_ADDRESS: ${CONTRACT_ADDRESS}
+      HTTP_PROVIDER: ${HTTP_PROVIDER}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      SENDER_EMAIL: ${SENDER_EMAIL}
+      AWS_REGION: ${AWS_REGION:-eu-north-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      SYNC_FROM_BLOCK: ${SYNC_FROM_BLOCK:-0}
+    ports:
+      - "5000:5000"
+    networks:
+      - theorem-marketplace
+    depends_on:
+      theorem-postgres:
+        condition: service_healthy
+      safe-verify-adapter:
+        condition: service_started
+
+networks:
+  theorem-marketplace:
+    name: theorem-marketplace
+    driver: bridge
+
+volumes:
+  cl-postgres-data:
+  theorem-postgres-data:
