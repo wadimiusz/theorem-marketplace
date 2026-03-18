@@ -16,6 +16,7 @@
 type = "directrequest"
 schemaVersion = 1
 name = "verify-proof"
+externalJobID = "3a4fba02-995a-447c-88b7-3cd17c1527a8"
 contractAddress = "0xc3e350a4Bc67c8e20e031121fF8fCc680809A9a3"  # Oracle contract address
 minIncomingConfirmations = 0
 minContractPaymentLinkJuels = "0"
