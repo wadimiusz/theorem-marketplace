@@ -12,20 +12,22 @@ HTTPSPort = 0
 ChainID = '11155111'
 FinalityDepth = 10
 
+[EVM.GasEstimator]
+Mode = 'FixedPrice'
+
 [EVM.HeadTracker]
-HistoryDepth = 50
+HistoryDepth = 15
 
 [EVM.NodePool]
-PollInterval = '30s'
+PollInterval = '60s'
 
-# Primary: Infura (reliable, has WSS)
-# Replace YOUR_INFURA_PROJECT_ID with your actual project ID
+# Primary: Infura (reliable WSS, free tier with FixedPrice gas should stay within limits)
 [[EVM.Nodes]]
 Name = 'Infura'
 WSURL = 'wss://sepolia.infura.io/ws/v3/YOUR_INFURA_PROJECT_ID'
 HTTPURL = 'https://sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID'
 
-# SendOnly fallbacks for transaction broadcasting (reduces load on primary)
+# SendOnly fallbacks for transaction broadcasting
 [[EVM.Nodes]]
 Name = 'DRPC'
 HTTPURL = 'https://sepolia.drpc.org'

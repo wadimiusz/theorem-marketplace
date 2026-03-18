@@ -1,0 +1,15 @@
+[project]
+name = "theorem-marketplace"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "flask",
+    "flask-sqlalchemy",
+    "psycopg2-binary",
+    "flask-migrate",
+    "web3",
+    "requests",
+    "gunicorn",
+    "boto3",
+    "flask-limiter",
+]

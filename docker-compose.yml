@@ -50,7 +50,7 @@ services:
     image: smartcontract/chainlink:2.20.0
     container_name: chainlink
     restart: unless-stopped
-    command: node -config /chainlink/config.toml -secrets /chainlink/secrets.toml
+    command: node -c /chainlink/config.toml -s /chainlink/secrets.toml start -a /chainlink/api-credentials
     volumes:
       - ./chainlink:/chainlink
     ports:
