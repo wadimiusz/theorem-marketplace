@@ -23,4 +23,4 @@ RUN echo "0 * * * * root /app/.venv/bin/python /app/sync_bounties.py >> /var/log
 
 EXPOSE 5000
 
-CMD bash -c "cron && exec uv run gunicorn --bind 0.0.0.0:5000 --access-logfile - --error-logfile - --log-level info app:app"
+CMD bash -c "cron && exec uv run gunicorn --bind 0.0.0.0:5000 --timeout 120 --access-logfile - --error-logfile - --log-level info app:app"
