@@ -33,8 +33,6 @@ services:
       POSTGRES_PASSWORD: ${THEOREM_POSTGRES_PASSWORD}
     volumes:
       - theorem-postgres-data:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"  # Expose on different port to avoid conflict with cl-postgres
     networks:
       - theorem-marketplace
     healthcheck:
@@ -53,8 +51,6 @@ services:
     command: node -c /chainlink/config.toml -s /chainlink/secrets.toml start -a /chainlink/api-credentials
     volumes:
       - ./chainlink:/chainlink
-    ports:
-      - "6688:6688"
     networks:
       - theorem-marketplace
     extra_hosts:
@@ -81,8 +77,6 @@ services:
     restart: unless-stopped
     environment:
       WORKING_DIR: /tmp/safeverify
-    ports:
-      - "8080:8080"
     networks:
       - theorem-marketplace
 
@@ -107,7 +101,7 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       SYNC_FROM_BLOCK: ${SYNC_FROM_BLOCK:-0}
     ports:
-      - "5000:5000"
+      - "127.0.0.1:5000:5000"
     networks:
       - theorem-marketplace
     depends_on:
