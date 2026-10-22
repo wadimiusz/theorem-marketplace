@@ -14,8 +14,12 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql.psycopg2 import logger
 from web3 import Web3
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
+# Behind nginx (one hop): take client IP from the X-Forwarded-For entry nginx appends,
+# otherwise every request appears to come from the docker bridge gateway.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 db_password = os.environ["DATABASE_PASSWORD"]
 app.config["SQLALCHEMY_DATABASE_URI"] = (
     f"postgresql://theorem_user:{db_password}@theorem_postgres:5432/theorem_marketplace"
