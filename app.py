@@ -19,7 +19,8 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 app = Flask(__name__)
 # Behind nginx (one hop): take client IP from the X-Forwarded-For entry nginx appends,
 # otherwise every request appears to come from the docker bridge gateway.
-app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+# Only trust headers nginx overwrites; X-Forwarded-Host is passed through from the client.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 db_password = os.environ["DATABASE_PASSWORD"]
 app.config["SQLALCHEMY_DATABASE_URI"] = (
     f"postgresql://theorem_user:{db_password}@theorem_postgres:5432/theorem_marketplace"
