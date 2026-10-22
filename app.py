@@ -239,10 +239,14 @@ def check_syntax():
     if not code:
         return jsonify({"success": False, "error": "No code provided"}), 400
 
-    # Send the theorem to the external adapter for syntax checking
+    # Send the theorem to the external adapter for syntax checking.
+    # import Mathlib alone takes ~20s and the adapter's hourly update blocks checks for ~2 min;
+    # keep the timeout below nginx's proxy_read_timeout (300s).
     try:
         response = requests.post(
-            "http://safe-verify-adapter:8080/check-syntax", json={"code": code}
+            "http://safe-verify-adapter:8080/check-syntax",
+            json={"code": code},
+            timeout=240,
         )
         response_data = response.json()
         if response_data.get("success"):
@@ -252,6 +256,9 @@ def check_syntax():
                 jsonify({"success": False, "message": response_data.get("stdout")}),
                 200,
             )
+    except requests.Timeout:
+        message = "The verifier is busy, please try again in a minute."
+        return jsonify({"success": False, "message": message}), 503
     except Exception:
         print("Error communicating with the external adapter:", traceback.format_exc())
         return jsonify({"success": False, "error": "Internal server error"}), 500
