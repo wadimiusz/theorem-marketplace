@@ -11,15 +11,22 @@ HTTPSPort = 0
 [[EVM]]
 ChainID = '11155111'
 FinalityDepth = 10
+# Sepolia defaults this to true, which silently ignores FinalityDepth and makes the node
+# fetch the 'finalized' block ~3x per head plus every 5s — half of all RPC credits.
+FinalityTagEnabled = false
 
 [EVM.GasEstimator]
 Mode = 'FixedPrice'
+
+# Fetches the node key's balance on every head (~7k eth_getBalance/day); only feeds the UI.
+[EVM.BalanceMonitor]
+Enabled = false
 
 [EVM.HeadTracker]
 HistoryDepth = 15
 
 [EVM.NodePool]
-PollInterval = '60s'
+PollInterval = '5m'
 
 # Primary: Infura (reliable WSS, free tier with FixedPrice gas should stay within limits)
 [[EVM.Nodes]]
