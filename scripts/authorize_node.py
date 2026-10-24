@@ -21,9 +21,7 @@ ORACLE_ABI = [
     }
 ]
 
-RPC_URL = os.environ.get(
-    "RPC_URL", "https://sepolia.infura.io/v3/6cd4a2c5b42f4422a1e0ad5de0ef0722"
-)
+RPC_URL = os.environ.get("RPC_URL") or getpass.getpass("Sepolia RPC URL: ")
 PRIVATE_KEY = os.environ.get("PRIVATE_KEY") or getpass.getpass(
     "Oracle owner private key: "
 )
